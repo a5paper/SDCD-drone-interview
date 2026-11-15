@@ -3,6 +3,7 @@ add_executable(DroneSimulator
     src/simulator.cpp
     src/drone.cpp
     src/world.cpp
+    src/udp_socket.cpp
     ${CMAKE_SOURCE_DIR}/generated/cpp/commands.pb.cc
 )
 

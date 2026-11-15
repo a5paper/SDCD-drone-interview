@@ -15,6 +15,8 @@ namespace drone_simulator::config
     constexpr f64 kFPS = 1.0 / kUpdateRateHz;
     constexpr f64 kMaxSpeed = 10.0;
 
+    constexpr u16 kCommandPort = 5600;
+
     constexpr f64 kMaxBattery = 100.0;
     constexpr f64 kInitialBattery =  kMaxBattery*0.6;
     constexpr uint32_t kBatteryLifetimeS = 120;

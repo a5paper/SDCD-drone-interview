@@ -73,6 +73,7 @@ int main()
         simulator.drone.HandleCommand(c1 ? command1 : command2);
         simulator.Update(delta_time);
 
+        
         std::this_thread::sleep_until(
             current_time + duration_cast<Clock::duration>(
                                frame_duration));
