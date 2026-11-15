@@ -7,7 +7,7 @@ package drone_protocol;
 message VideoChunk {
   uint64 frame_id = 1;
   uint32 chunk_index = 2;
-  uint32 chunk_count = 3;  // Data chunks only, parity excluded.
-  uint32 frame_size = 4;   // JPEG bytes, to trim the zero padding.
+  uint32 chunk_count = 3;
+  uint32 frame_size = 4;
   bytes payload = 5;
 }

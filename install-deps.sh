@@ -16,7 +16,9 @@ ${SUDO} apt-get install -y \
   cmake \
   protobuf-compiler \
   libprotobuf-dev \
-  libopencv-dev
+  libopencv-dev \
+  python3-opencv \
+  python3-protobuf
 
 echo "Dependencies installed."
 echo "  cmake:  $(cmake --version | head -n1)"
