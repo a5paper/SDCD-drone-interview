@@ -9,6 +9,21 @@ namespace drone_simulator::config {
 // World
 inline constexpr double kWidth = 1000.0;
 inline constexpr double kHeight = 1000.0;
+inline constexpr uint32_t kRandomSeed = 42;
+// World - Buildings (placed per block, inside the roads)
+inline constexpr int kBuildingsPerBlock = 2;
+inline constexpr double kBuildingMarginM = 3.0;
+inline constexpr double kBuildingMinSizeM = 8.0;
+inline constexpr double kBuildingMaxSizeM = 18.0;
+// World - Cars (spawned near the drone, deleted when far from it)
+inline constexpr double kCarLengthM = 4.5;
+inline constexpr double kCarWidthM = 2.0;
+inline constexpr double kCarSpeedMps = 8.0;
+inline constexpr int kCarColorCount = 4;
+inline constexpr double kCarSpawnIntervalS = 2.0;
+inline constexpr double kCarSpawnDistanceM = 60.0;
+inline constexpr double kCarDespawnDistanceM = 100.0;
+inline constexpr int kCarSpawnRoadRange = 1;
 
 // Simulation loop
 inline constexpr double kUpdateRateHz = 50.0;
@@ -32,6 +47,7 @@ inline constexpr int kFrameHeightPx = 640;
 inline constexpr double kPixelsPerMeter = 10.0;
 inline constexpr double kBlockSizeM = 50.0;
 inline constexpr double kRoadWidthM = 8.0;
+inline constexpr double kLaneOffsetM = kRoadWidthM / 4.0;
 // Video - Stream
 inline constexpr int kTicksPerFrame = 2;
 inline constexpr double kVideoFps = kUpdateRateHz / kTicksPerFrame;
