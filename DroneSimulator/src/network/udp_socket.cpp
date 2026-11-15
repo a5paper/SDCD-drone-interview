@@ -1,11 +1,13 @@
 #include "network/udp_socket.h"
 
+#include <arpa/inet.h>
 #include <fcntl.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #include <cerrno>
+#include <string>
 #include <utility>
 
 namespace drone_simulator::network {
@@ -54,6 +56,24 @@ bool UdpSocket::SetNonBlocking() {
   return ::fcntl(fd_, F_SETFL, flags | O_NONBLOCK) == 0;
 }
 
+bool UdpSocket::Connect(std::string_view address, uint16_t port) {
+  if (!IsOpen()) {
+    return false;
+  }
+
+  sockaddr_in destination{};
+  destination.sin_family = AF_INET;
+  destination.sin_port = htons(port);
+  if (::inet_pton(AF_INET, std::string(address).c_str(),
+                  &destination.sin_addr) != 1) {
+    errno = EINVAL;
+    return false;
+  }
+
+  return ::connect(fd_, reinterpret_cast<const sockaddr*>(&destination),
+                   sizeof(destination)) == 0;
+}
+
 ReceiveResult UdpSocket::Receive(std::span<uint8_t> buffer) {
   if (!IsOpen()) {
     return {ReceiveStatus::kError, 0, EBADF};
@@ -68,6 +88,22 @@ ReceiveResult UdpSocket::Receive(std::span<uint8_t> buffer) {
   }
 
   return {ReceiveStatus::kData, static_cast<size_t>(received), 0};
+}
+
+SendResult UdpSocket::Send(std::span<const uint8_t> data) {
+  if (!IsOpen()) {
+    return {SendStatus::kError, 0, EBADF};
+  }
+
+  const ssize_t sent = ::send(fd_, data.data(), data.size(), 0);
+  if (sent < 0) {
+    if (errno == EAGAIN || errno == EWOULDBLOCK) {
+      return {SendStatus::kWouldBlock, 0, 0};
+    }
+    return {SendStatus::kError, 0, errno};
+  }
+
+  return {SendStatus::kSent, static_cast<size_t>(sent), 0};
 }
 
 void UdpSocket::Close() {

@@ -6,6 +6,7 @@ protobuf_generate(
     PROTOS
         ${CMAKE_CURRENT_SOURCE_DIR}/commands.proto
         ${CMAKE_CURRENT_SOURCE_DIR}/telemetry.proto
+        ${CMAKE_CURRENT_SOURCE_DIR}/video.proto
     IMPORT_DIRS ${CMAKE_CURRENT_SOURCE_DIR}
     PROTOC_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR}
 )

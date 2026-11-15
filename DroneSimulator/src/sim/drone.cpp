@@ -29,7 +29,7 @@ void Drone::HandleCommand(
   // The command's length is the fraction of max speed, capped at 1 so
   // diagonals are not faster than straight lines.
   const double length = std::hypot(command.velocity_x(), command.velocity_y());
-  
+
   if (length == 0.0) {
     state_.direction = {};
     state_.speed = 0.0;

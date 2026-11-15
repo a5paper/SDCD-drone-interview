@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package drone_protocol;
+
+// One UDP datagram of a JPEG frame. chunk_index == chunk_count marks the XOR
+// parity chunk.
+message VideoChunk {
+  uint64 frame_id = 1;
+  uint32 chunk_index = 2;
+  uint32 chunk_count = 3;  // Data chunks only, parity excluded.
+  uint32 frame_size = 4;   // JPEG bytes, to trim the zero padding.
+  bytes payload = 5;
+}
