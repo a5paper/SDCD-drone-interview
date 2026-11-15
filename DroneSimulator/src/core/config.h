@@ -19,7 +19,7 @@ inline constexpr int kStatusPrintPrecision = 2;
 inline constexpr double kBytesPerKiB = 1024.0;
 
 // Drone
-inline constexpr double kMaxCommandVelocity = 1.0;
+inline constexpr double kMaxCommandVelocity = 1;
 inline constexpr double kMaxSpeed = 10.0;
 inline constexpr double kMaxBattery = 100.0;
 inline constexpr double kInitialBatteryFraction = 0.687;

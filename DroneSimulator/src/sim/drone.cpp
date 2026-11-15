@@ -1,5 +1,6 @@
 #include "sim/drone.h"
 
+#include <algorithm>
 #include <cmath>
 
 #include "core/config.h"
@@ -25,8 +26,20 @@ void Drone::HandleCommand(
     return;
   }
 
-  state_.velocity.x = command.velocity_x() * config::kMaxSpeed;
-  state_.velocity.y = command.velocity_y() * config::kMaxSpeed;
+  // The command's length is the fraction of max speed, capped at 1 so
+  // diagonals are not faster than straight lines.
+  const double length = std::hypot(command.velocity_x(), command.velocity_y());
+  
+  if (length == 0.0) {
+    state_.direction = {};
+    state_.speed = 0.0;
+    return;
+  }
+
+  state_.direction = {command.velocity_x() / length,
+                      command.velocity_y() / length};
+  state_.speed =
+      std::min(length, config::kMaxCommandVelocity) * config::kMaxSpeed;
 }
 
 void Drone::Update(double delta_time) {
@@ -39,10 +52,14 @@ void Drone::Update(double delta_time) {
 
   if (state_.battery_percentage <= 0.0) {
     state_.battery_percentage = 0.0;
-    state_.velocity = {};
+    state_.speed = 0.0;
   }
 }
 
 const DroneState& Drone::GetState() const { return state_; }
+
+Vector2 Drone::GetVelocity() const {
+  return {state_.direction.x * state_.speed, state_.direction.y * state_.speed};
+}
 
 }

@@ -10,7 +10,7 @@ void Simulator::HandleCommand(
 void Simulator::Update(double delta_time) {
   drone_.Update(delta_time);
 
-  const drone::DroneVelocity& velocity = drone_.GetState().velocity;
+  const drone::Vector2 velocity = drone_.GetVelocity();
   world_.Update(velocity.x, velocity.y, delta_time);
 }
 
