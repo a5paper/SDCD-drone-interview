@@ -22,10 +22,11 @@ target_link_libraries(drone_render
     PRIVATE opencv_imgproc opencv_imgcodecs
 )
 
-# network: UDP socket and command receiving
+# network: UDP socket, command receiving, video streaming
 add_library(drone_network STATIC
     src/network/udp_socket.cpp
     src/network/command_receiver.cpp
+    src/network/video_streamer.cpp
 )
 target_link_libraries(drone_network PUBLIC drone_core drone_protocol)
 
