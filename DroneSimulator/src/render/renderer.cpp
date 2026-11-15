@@ -19,8 +19,8 @@ const cv::Mat& Renderer::Render(const world::WorldState& state) {
   const cv::Scalar road_color(110, 110, 110);
   const cv::Scalar drone_color(0, 200, 255);
   const cv::Scalar drone_center_color(0, 0, 0);
-  const int building_min_shade = 150;
-  const int building_max_shade = 210;
+  const uint8_t building_min_shade = 150;
+  const uint8_t building_max_shade = 210;
   // Red, blue, white, black.
   const std::array<cv::Scalar, config::kCarColorCount> car_colors = {
       cv::Scalar(40, 40, 220), cv::Scalar(220, 90, 30),
@@ -64,7 +64,7 @@ const cv::Mat& Renderer::Render(const world::WorldState& state) {
             f * kBlock + kLotMin + place(random) * (kLotSize - size_f);
         const double min_r =
             r * kBlock + kLotMin + place(random) * (kLotSize - size_r);
-        const int gray = shade(random);
+        const auto gray = static_cast<uint8_t>(shade(random));
         DrawWorldRect(min_f, min_f + size_f, min_r, min_r + size_r,
                       cv::Scalar(gray, gray, gray), state);
       }

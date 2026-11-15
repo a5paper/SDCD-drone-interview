@@ -59,11 +59,12 @@ void World::SpawnCar() {
   const double start = along - direction * config::kCarSpawnDistanceM;
   const double speed = direction * config::kCarSpeedMps;
   const double lane = direction * config::kLaneOffsetM;
+  const auto car_color = static_cast<uint8_t>(color(random_));
 
   if (along_x) {
-    state_.cars.push_back({start, road + lane, speed, 0.0, color(random_)});
+    state_.cars.push_back({start, road + lane, speed, 0.0, car_color});
   } else {
-    state_.cars.push_back({road - lane, start, 0.0, speed, color(random_)});
+    state_.cars.push_back({road - lane, start, 0.0, speed, car_color});
   }
 }
 

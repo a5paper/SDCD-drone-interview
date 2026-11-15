@@ -1,6 +1,7 @@
 #ifndef DRONE_SIMULATOR_SIM_WORLD_H_
 #define DRONE_SIMULATOR_SIM_WORLD_H_
 
+#include <cstdint>
 #include <random>
 #include <vector>
 
@@ -13,7 +14,7 @@ struct Car {
   double position_y = 0.0;
   double velocity_x = 0.0;
   double velocity_y = 0.0;
-  int color_index = 0;
+  uint8_t color_index = 0;
 };
 
 struct WorldState {
