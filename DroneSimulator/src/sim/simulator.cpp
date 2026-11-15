@@ -1,6 +1,4 @@
-#include "simulator.h"
-
-#include "config.h"
+#include "sim/simulator.h"
 
 namespace drone_simulator
 {

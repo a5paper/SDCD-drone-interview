@@ -2,8 +2,25 @@
 
 ## How to compile
 1. Use a Ubuntu 24 LTS or a windows computer the same OS on WSL.
-2. `sudo bash install-deps.sh`
-3. `sudo bash compile.sh`
+2. `bash install-deps.sh` (asks for sudo itself)
+3. `bash compile.sh [Debug|Release] [--clean]` (Debug by default; do not use sudo, or `build/` becomes root-owned)
+4. Run: `./build/DroneSimulator/DroneSimulator`
+
+## Debugging with GDB
+- Debug builds (the default) use `-g3 -O0`.
+- Terminal: `gdb ./build/DroneSimulator/DroneSimulator`, e.g. `break drone_simulator::drone::Drone::HandleCommand`, then `run`.
+- VS Code: install the C/C++ extension (`ms-vscode.cpptools`) and press F5. `.vscode/launch.json` builds with the "build (Debug)" task first.
+
+## Project layout
+```
+protocols/                 protobuf messages (drone_protocol library)
+DroneSimulator/src/
+  main.cpp                 main loop: receive, update, render, status
+  core/                    config.h (all constants), types.h (type aliases)
+  sim/                     drone, world, simulator step (drone_sim library)
+  render/                  top-down renderer, JPEG encoding (drone_render library)
+  network/                 UDP socket, command receiver (drone_network library)
+```
 
 ## Assumptions
 For the sake of the first Task I made several assumptions:

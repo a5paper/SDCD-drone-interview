@@ -1,8 +1,8 @@
-#ifndef DRONE_SIMULATOR_INCLUDE_SIMULATOR_H_
-#define DRONE_SIMULATOR_INCLUDE_SIMULATOR_H_
+#ifndef DRONE_SIMULATOR_SIM_SIMULATOR_H_
+#define DRONE_SIMULATOR_SIM_SIMULATOR_H_
 
-#include "drone.h"
-#include "world.h"
+#include "sim/drone.h"
+#include "sim/world.h"
 
 namespace drone_simulator
 {

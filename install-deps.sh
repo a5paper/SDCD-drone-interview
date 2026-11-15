@@ -12,6 +12,7 @@ fi
 $SUDO apt-get update
 $SUDO apt-get install -y \
     build-essential \
+    gdb \
     cmake \
     protobuf-compiler \
     libprotobuf-dev \
@@ -21,4 +22,5 @@ echo "Dependencies installed."
 echo "  cmake:  $(cmake --version | head -n1)"
 echo "  protoc: $(protoc --version)"
 echo "  opencv: $(pkg-config --modversion opencv4)"
+echo "  gdb:    $(gdb --version | head -n1)"
 

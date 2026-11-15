@@ -1,13 +1,13 @@
-#ifndef DRONE_SIMULATOR_INCLUDE_JPEG_RENDERER_H_
-#define DRONE_SIMULATOR_INCLUDE_JPEG_RENDERER_H_
+#ifndef DRONE_SIMULATOR_RENDER_JPEG_RENDERER_H_
+#define DRONE_SIMULATOR_RENDER_JPEG_RENDERER_H_
 
 #include <vector>
 
 #include <opencv2/core.hpp>
 
-#include "renderer.h"
-#include "types.h"
-#include "world.h"
+#include "core/types.h"
+#include "render/renderer.h"
+#include "sim/world.h"
 
 namespace drone_simulator::render
 {

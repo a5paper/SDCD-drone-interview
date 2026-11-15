@@ -1,0 +1,37 @@
+#include "network/command_receiver.h"
+
+#include <cstring>
+#include <iostream>
+
+namespace drone_simulator::network
+{
+
+    b8 CommandReceiver::Open(u16 port)
+    {
+        return socket_.Bind(port) && socket_.SetNonBlocking();
+    }
+
+    std::optional<drone_protocol::VelocityChangeCommand> CommandReceiver::Poll()
+    {
+        std::optional<drone_protocol::VelocityChangeCommand> latest;
+
+        ReceiveResult result;
+        while ((result = socket_.Receive(buffer_)).status != ReceiveStatus::kWouldBlock)
+        {
+            if (result.status == ReceiveStatus::kError)
+            {
+                std::cerr << "Receive failed: " << std::strerror(result.error_code) << std::endl;
+                break;
+            }
+
+            drone_protocol::VelocityChangeCommand command;
+            if (command.ParseFromArray(buffer_.data(), static_cast<i32>(result.bytes)))
+            {
+                latest = command;
+            }
+        }
+
+        return latest;
+    }
+
+}

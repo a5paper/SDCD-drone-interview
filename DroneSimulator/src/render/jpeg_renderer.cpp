@@ -1,8 +1,8 @@
-#include "jpeg_renderer.h"
+#include "render/jpeg_renderer.h"
 
 #include <opencv2/imgcodecs.hpp>
 
-#include "config.h"
+#include "core/config.h"
 
 namespace drone_simulator::render
 {

@@ -31,8 +31,10 @@ __pycache__/
 venv/
 env/
 
-# IDEs and editors
-.vscode/
+# IDEs and editors (debug and build configs are shared)
+.vscode/*
+!.vscode/launch.json
+!.vscode/tasks.json
 
 *.log
 *.tmp

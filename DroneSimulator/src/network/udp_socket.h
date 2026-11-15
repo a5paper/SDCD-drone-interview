@@ -1,9 +1,9 @@
-#ifndef DRONE_SIMULATOR_INCLUDE_UDP_SOCKET_H_
-#define DRONE_SIMULATOR_INCLUDE_UDP_SOCKET_H_
+#ifndef DRONE_SIMULATOR_NETWORK_UDP_SOCKET_H_
+#define DRONE_SIMULATOR_NETWORK_UDP_SOCKET_H_
 
 #include <span>
 
-#include "types.h"
+#include "core/types.h"
 
 namespace drone_simulator::network
 {
@@ -35,10 +35,10 @@ namespace drone_simulator::network
         UdpSocket &operator=(UdpSocket &&other) noexcept;
 
         b8 IsOpen() const;
-        b8 Bind(u16 port);
-        b8 SetNonBlocking();
+        [[nodiscard]] b8 Bind(u16 port);
+        [[nodiscard]] b8 SetNonBlocking();
 
-        ReceiveResult Receive(std::span<byte_t> buffer);
+        [[nodiscard]] ReceiveResult Receive(std::span<byte_t> buffer);
 
     private:
         static constexpr i32 kInvalidFd = -1;

@@ -1,17 +1,16 @@
-#include "renderer.h"
+#include "render/renderer.h"
 
 #include <cmath>
 
 #include <opencv2/imgproc.hpp>
 
-#include "config.h"
+#include "core/config.h"
 
 namespace drone_simulator::render
 {
 
     const cv::Scalar kGrassColor(40, 90, 40);
     const cv::Scalar kRoadColor(110, 110, 110);
-    const cv::Scalar kBuildingColor(140, 140, 140);
     const cv::Scalar kDroneColor(0, 200, 255);
     const cv::Scalar kDroneCenterColor(0, 0, 0);
 
@@ -39,8 +38,8 @@ namespace drone_simulator::render
 
         for (f64 k = std::floor(right_min / kBlock); k <= std::ceil(right_max / kBlock); ++k)
         {
-            DrawWorldRect_(forward_min, forward_max, k * kBlock - kHalfRoad, k * kBlock + kHalfRoad,
-                           kRoadColor, state);
+            DrawWorldRect_(forward_min, forward_max, k * kBlock - kHalfRoad,
+                           k * kBlock + kHalfRoad, kRoadColor, state);
         }
 
         for (f64 k = std::floor(forward_min / kBlock); k <= std::ceil(forward_max / kBlock); ++k)
@@ -51,7 +50,8 @@ namespace drone_simulator::render
 
         const f64 radius = config::kDroneSizeM / 2.0;
         DrawWorldRect_(x - radius, x + radius, y - radius, y + radius, kDroneColor, state);
-        cv::circle(frame_, WorldToScreen_(x, y, state), config::kDroneCenterRadiusPx, kDroneCenterColor, cv::FILLED);
+        cv::circle(frame_, WorldToScreen_(x, y, state), config::kDroneCenterRadiusPx,
+                   kDroneCenterColor, cv::FILLED);
 
         return frame_;
     }

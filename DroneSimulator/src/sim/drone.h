@@ -1,10 +1,10 @@
-#ifndef DRONE_SIMULATOR_INCLUDE_DRONE_H_
-#define DRONE_SIMULATOR_INCLUDE_DRONE_H_
+#ifndef DRONE_SIMULATOR_SIM_DRONE_H_
+#define DRONE_SIMULATOR_SIM_DRONE_H_
 
 #include <commands.pb.h>
 
-#include "config.h"
-#include "types.h"
+#include "core/config.h"
+#include "core/types.h"
 
 namespace drone_simulator::drone
 {

@@ -8,7 +8,7 @@ protobuf_generate(
     PROTOC_OUT_DIR ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-target_include_directories(drone_protocol PUBLIC
+target_include_directories(drone_protocol SYSTEM PUBLIC
     ${CMAKE_CURRENT_BINARY_DIR}
 )
 

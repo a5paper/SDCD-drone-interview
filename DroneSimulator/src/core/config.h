@@ -1,9 +1,9 @@
-#ifndef DRONE_SIMULATOR_INCLUDE_CONFIG_H_
-#define DRONE_SIMULATOR_INCLUDE_CONFIG_H_
+#ifndef DRONE_SIMULATOR_CORE_CONFIG_H_
+#define DRONE_SIMULATOR_CORE_CONFIG_H_
 
 #include <string_view>
 
-#include "types.h"
+#include "core/types.h"
 
 namespace drone_simulator::config
 {

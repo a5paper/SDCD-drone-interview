@@ -1,8 +1,8 @@
-#include "drone.h"
+#include "sim/drone.h"
 
 #include <cmath>
 
-#include "config.h"
+#include "core/config.h"
 
 namespace drone_simulator::drone
 {

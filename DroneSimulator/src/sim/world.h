@@ -1,8 +1,8 @@
-#ifndef DRONE_SIMULATOR_INCLUDE_WORLD_H_
-#define DRONE_SIMULATOR_INCLUDE_WORLD_H_
+#ifndef DRONE_SIMULATOR_SIM_WORLD_H_
+#define DRONE_SIMULATOR_SIM_WORLD_H_
 
-#include "types.h"
-#include "config.h"
+#include "core/config.h"
+#include "core/types.h"
 
 namespace drone_simulator::world
 {
