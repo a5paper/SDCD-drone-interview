@@ -42,7 +42,8 @@ void PrintStatus(const Simulator& simulator,
             << "JPEG: " << jpeg_kib << " KiB (" << jpeg_kib * config::kVideoFps
             << " KiB/s)\n"
             << "Video send failures: " << streamer.GetFailedSends() << "\n"
-            << "Time On: " << std::format("{:%T}", uptime) << "\n\n";
+            << "Time On: " << std::format("{:%T}", uptime) << "\n\n"
+            << std::flush;
 }
 
 void ShowPreview(const std::vector<uint8_t>& jpeg) {
