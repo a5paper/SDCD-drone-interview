@@ -15,10 +15,12 @@ $SUDO apt-get install -y \
     cmake \
     protobuf-compiler \
     libprotobuf-dev \
-    libopencv-dev
+    libopencv-dev \
+    ffmpeg
 
 echo "Dependencies installed."
 echo "  cmake:  $(cmake --version | head -n1)"
 echo "  protoc: $(protoc --version)"
 echo "  opencv: $(pkg-config --modversion opencv4)"
+echo "  ffmpeg: $(ffmpeg -version | head -n1)"
 
