@@ -17,8 +17,15 @@ int main()
     f64 zigzag_timer = 0.0;
     f64 zigzag_timing = 3.0;
 
-    drone_simulator::drone::VelocityCommand command1 = {1, 1};
-    drone_simulator::drone::VelocityCommand command2 = {-1, 1};
+    
+    drone_protocol::VelocityChangeCommand command1;
+    command1.set_velocity_x(1);
+    command1.set_velocity_y(-0.5);
+
+    drone_protocol::VelocityChangeCommand command2;
+    command2.set_velocity_x(1);
+    command2.set_velocity_y(0.5);
+    
     bool c1 = false;
 
     // Start Main Loo[]

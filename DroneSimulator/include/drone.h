@@ -2,15 +2,11 @@
 #define DRONE_SIMULATOR_INCLUDE_DRONE_H_
 
 #include <types.h>
+#include<commands.pb.h>
 
 namespace drone_simulator::drone
 {
 
-    struct VelocityCommand
-    {
-        f64 x = 0.0;
-        f64 y = 0.0;
-    };
 
     struct DroneVelocity
     {
@@ -29,7 +25,7 @@ namespace drone_simulator::drone
     {
     public:
         Drone() = default;
-        void HandleCommand(const VelocityCommand &command);
+        void HandleCommand(const drone_protocol::VelocityChangeCommand &command);
         void Update(f64 delta_time);
         const DroneState &GetState() const;
 

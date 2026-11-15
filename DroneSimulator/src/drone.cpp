@@ -6,28 +6,28 @@
 namespace drone_simulator::drone
 {
 
-    void Drone::HandleCommand(const VelocityCommand &command)
+    void Drone::HandleCommand(const drone_protocol::VelocityChangeCommand &command)
     {
         if (state_.battery_percentage == 0U)
         {
             return;
         }
 
-        if (!std::isfinite(command.x) ||
-            !std::isfinite(command.y))
+        if (!std::isfinite(command.velocity_x()) ||
+            !std::isfinite(command.velocity_y()))
         {
             return;
         }
 
         // Todo(seani) move to validate function
-        if (command.x < -1.0 || command.x > 1.0 ||
-            command.y < -1.0 || command.y > 1.0)
+        if (command.velocity_x() < -1.0 || command.velocity_x() > 1.0 ||
+            command.velocity_y() < -1.0 || command.velocity_y() > 1.0)
         {
             return;
         }
 
-        state_.velocity.x = command.x * config::kMaxSpeed;
-        state_.velocity.y = command.y * config::kMaxSpeed;
+        state_.velocity.x = command.velocity_x() * config::kMaxSpeed;
+        state_.velocity.y = command.velocity_y() * config::kMaxSpeed;
     }
 
     void Drone::Update(f64 delta_time)

@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package drone_protocol;
+
+message VelocityChangeCommand {
+  double velocity_x = 1;
+  double velocity_y = 2;
+}

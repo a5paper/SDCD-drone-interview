@@ -7,6 +7,9 @@ cmake_install.cmake
 Makefile
 compile_commands.json
 
+# Protobuf
+generated/
+
 # bins
 *.o
 *.obj
