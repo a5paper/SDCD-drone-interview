@@ -10,118 +10,139 @@
 #include "core/config.h"
 
 namespace drone_simulator::render {
+namespace {
+
+constexpr double kBlock = config::kBlockSizeM;
+constexpr double kHalfRoad = config::kRoadWidthM / 2.0;
+
+// Index of the block (or road) at or below `coordinate`. Roads run through
+// every multiple of kBlock; block k lies between roads k and k + 1.
+int FirstBlock(double coordinate) {
+  return static_cast<int>(std::floor(coordinate / kBlock));
+}
+
+}
 
 Renderer::Renderer()
     : frame_(config::kFrameHeightPx, config::kFrameWidthPx, CV_8UC3) {}
 
 const cv::Mat& Renderer::Render(const world::WorldState& state) {
   const cv::Scalar grass_color(40, 90, 40);
-  const cv::Scalar road_color(110, 110, 110);
-  const cv::Scalar drone_color(0, 200, 255);
-  const cv::Scalar drone_center_color(0, 0, 0);
-  const uint8_t building_min_shade = 150;
-  const uint8_t building_max_shade = 210;
-  // Red, blue, white, black.
-  const std::array<cv::Scalar, config::kCarColorCount> car_colors = {
-      cv::Scalar(40, 40, 220), cv::Scalar(220, 90, 30),
-      cv::Scalar(245, 245, 245), cv::Scalar(20, 20, 20)};
 
   const double x = state.drone_position_x;
   const double y = state.drone_position_y;
-
-  const double half_forward_m = frame_.rows / 2.0 / config::kPixelsPerMeter;
-  const double half_right_m = frame_.cols / 2.0 / config::kPixelsPerMeter;
-  const double forward_min = x - half_forward_m;
-  const double forward_max = x + half_forward_m;
-  const double right_min = y - half_right_m;
-  const double right_max = y + half_right_m;
+  const double half_forward = frame_.rows / 2.0 / config::kPixelsPerMeter;
+  const double half_right = frame_.cols / 2.0 / config::kPixelsPerMeter;
+  view_ = {x - half_forward, x + half_forward, y - half_right, y + half_right};
 
   frame_.setTo(grass_color);
-
-  constexpr double kBlock = config::kBlockSizeM;
-  constexpr double kHalfRoad = config::kRoadWidthM / 2.0;
-  constexpr double kLotMin = kHalfRoad + config::kBuildingMarginM;
-  constexpr double kLotSize = kBlock - 2 * kLotMin;
-
-  // Each block's buildings come from a generator seeded by the block's grid
-  // position, so they are the same on every frame without being stored.
-  for (int f = static_cast<int>(std::floor(forward_min / kBlock));
-       f * kBlock <= forward_max; ++f) {
-    for (int r = static_cast<int>(std::floor(right_min / kBlock));
-         r * kBlock <= right_max; ++r) {
-      std::seed_seq seed{static_cast<uint32_t>(f), static_cast<uint32_t>(r),
-                         config::kRandomSeed};
-      std::minstd_rand random(seed);
-      std::uniform_real_distribution<double> size(config::kBuildingMinSizeM,
-                                                  config::kBuildingMaxSizeM);
-      std::uniform_real_distribution<double> place(0.0, 1.0);
-      std::uniform_int_distribution<int> shade(building_min_shade,
-                                               building_max_shade);
-      for (int i = 0; i < config::kBuildingsPerBlock; ++i) {
-        const double size_f = size(random);
-        const double size_r = size(random);
-        const double min_f =
-            f * kBlock + kLotMin + place(random) * (kLotSize - size_f);
-        const double min_r =
-            r * kBlock + kLotMin + place(random) * (kLotSize - size_r);
-        const auto gray = static_cast<uint8_t>(shade(random));
-        DrawWorldRect(min_f, min_f + size_f, min_r, min_r + size_r,
-                      cv::Scalar(gray, gray, gray), state);
-      }
-    }
-  }
-
-  for (double k = std::floor(right_min / kBlock);
-       k <= std::ceil(right_max / kBlock); ++k) {
-    DrawWorldRect(forward_min, forward_max, k * kBlock - kHalfRoad,
-                  k * kBlock + kHalfRoad, road_color, state);
-  }
-
-  for (double k = std::floor(forward_min / kBlock);
-       k <= std::ceil(forward_max / kBlock); ++k) {
-    DrawWorldRect(k * kBlock - kHalfRoad, k * kBlock + kHalfRoad, right_min,
-                  right_max, road_color, state);
-  }
-
-  for (const world::Car& car : state.cars) {
-    const bool along_x = car.velocity_x != 0.0;
-    const double half_f =
-        (along_x ? config::kCarLengthM : config::kCarWidthM) / 2.0;
-    const double half_r =
-        (along_x ? config::kCarWidthM : config::kCarLengthM) / 2.0;
-    DrawWorldRect(car.position_x - half_f, car.position_x + half_f,
-                  car.position_y - half_r, car.position_y + half_r,
-                  car_colors[car.color_index], state);
-  }
-
-  const double radius = config::kDroneSizeM / 2.0;
-  DrawWorldRect(x - radius, x + radius, y - radius, y + radius, drone_color,
-                state);
-  cv::circle(frame_, WorldToScreen(x, y, state), config::kDroneCenterRadiusPx,
-             drone_center_color, cv::FILLED);
-
+  DrawBuildings();
+  DrawRoads();
+  DrawCars(state.cars_along_x, /*along_x=*/true);
+  DrawCars(state.cars_along_y, /*along_x=*/false);
+  DrawDrone(x, y);
   return frame_;
 }
 
-cv::Point2d Renderer::WorldToScreen(double world_x, double world_y,
-                                    const world::WorldState& state) const {
-  const double screen_x =
-      frame_.cols / 2.0 +
-      (world_y - state.drone_position_y) * config::kPixelsPerMeter;
-  const double screen_y =
-      frame_.rows / 2.0 -
-      (world_x - state.drone_position_x) * config::kPixelsPerMeter;
+void Renderer::DrawBuildings() {
+  for (int f = FirstBlock(view_.forward_min); f * kBlock <= view_.forward_max;
+       ++f) {
+    for (int r = FirstBlock(view_.right_min); r * kBlock <= view_.right_max;
+         ++r) {
+      DrawBlockBuildings(f, r);
+    }
+  }
+}
 
-  return {screen_x, screen_y};
+// A block's buildings come from a generator seeded by the block's position,
+// so they are the same on every frame without being stored.
+void Renderer::DrawBlockBuildings(int block_forward, int block_right) {
+  const uint8_t min_shade = 150;
+  const uint8_t max_shade = 210;
+  constexpr double kLotMin = kHalfRoad + config::kBuildingMarginM;
+  constexpr double kLotSize = kBlock - 2 * kLotMin;
+
+  std::seed_seq seed{static_cast<uint32_t>(block_forward),
+                     static_cast<uint32_t>(block_right), config::kRandomSeed};
+  std::minstd_rand random(seed);
+  std::uniform_real_distribution<double> size(config::kBuildingMinSizeM,
+                                              config::kBuildingMaxSizeM);
+  std::uniform_real_distribution<double> place(0.0, 1.0);
+  std::uniform_int_distribution<int> shade(min_shade, max_shade);
+
+  for (int i = 0; i < config::kBuildingsPerBlock; ++i) {
+    const double size_forward = size(random);
+    const double size_right = size(random);
+    const double forward = block_forward * kBlock + kLotMin +
+                           place(random) * (kLotSize - size_forward);
+    const double right = block_right * kBlock + kLotMin +
+                         place(random) * (kLotSize - size_right);
+    const auto gray = static_cast<uint8_t>(shade(random));
+    DrawWorldRect(forward, forward + size_forward, right, right + size_right,
+                  cv::Scalar(gray, gray, gray));
+  }
+}
+
+void Renderer::DrawRoads() {
+  const cv::Scalar road_color(110, 110, 110);
+
+  for (int k = FirstBlock(view_.right_min);
+       k * kBlock - kHalfRoad <= view_.right_max; ++k) {
+    DrawWorldRect(view_.forward_min, view_.forward_max, k * kBlock - kHalfRoad,
+                  k * kBlock + kHalfRoad, road_color);
+  }
+  for (int k = FirstBlock(view_.forward_min);
+       k * kBlock - kHalfRoad <= view_.forward_max; ++k) {
+    DrawWorldRect(k * kBlock - kHalfRoad, k * kBlock + kHalfRoad,
+                  view_.right_min, view_.right_max, road_color);
+  }
+}
+
+// `along_x` tells which way the pool's roads run, so which car side is long.
+void Renderer::DrawCars(const world::CarPool& pool, bool along_x) {
+  // Red, blue, white, black.
+  const std::array<cv::Scalar, config::kCarColorCount> colors = {
+      cv::Scalar(40, 40, 220), cv::Scalar(220, 90, 30),
+      cv::Scalar(245, 245, 245), cv::Scalar(20, 20, 20)};
+  const double half_length = config::kCarLengthM / 2.0;
+  const double half_width = config::kCarWidthM / 2.0;
+  const double half_forward = along_x ? half_length : half_width;
+  const double half_right = along_x ? half_width : half_length;
+
+  for (size_t i = 0; i < pool.along.size(); ++i) {
+    const double forward = along_x ? pool.along[i] : pool.across[i];
+    const double right = along_x ? pool.across[i] : pool.along[i];
+    DrawWorldRect(forward - half_forward, forward + half_forward,
+                  right - half_right, right + half_right,
+                  colors[pool.color[i]]);
+  }
+}
+
+void Renderer::DrawDrone(double drone_x, double drone_y) {
+  const cv::Scalar body_color(0, 200, 255);
+  const cv::Scalar center_color(0, 0, 0);
+  const double radius = config::kDroneSizeM / 2.0;
+
+  DrawWorldRect(drone_x - radius, drone_x + radius, drone_y - radius,
+                drone_y + radius, body_color);
+  cv::circle(frame_, WorldToScreen(drone_x, drone_y),
+             config::kDroneCenterRadiusPx, center_color, cv::FILLED);
+}
+
+cv::Point2d Renderer::WorldToScreen(double world_x, double world_y) const {
+  return {(world_y - view_.right_min) * config::kPixelsPerMeter,
+          (view_.forward_max - world_x) * config::kPixelsPerMeter};
 }
 
 void Renderer::DrawWorldRect(double forward_min, double forward_max,
                              double right_min, double right_max,
-                             const cv::Scalar& color,
-                             const world::WorldState& state) {
-  cv::rectangle(frame_, WorldToScreen(forward_max, right_min, state),
-                WorldToScreen(forward_min, right_max, state), color,
-                cv::FILLED);
+                             const cv::Scalar& color) {
+  if (forward_max < view_.forward_min || forward_min > view_.forward_max ||
+      right_max < view_.right_min || right_min > view_.right_max) {
+    return;
+  }
+  cv::rectangle(frame_, WorldToScreen(forward_max, right_min),
+                WorldToScreen(forward_min, right_max), color, cv::FILLED);
 }
 
 }

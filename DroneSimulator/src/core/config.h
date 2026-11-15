@@ -15,15 +15,13 @@ inline constexpr uint8_t kBuildingsPerBlock = 2;
 inline constexpr double kBuildingMarginM = 3.0;
 inline constexpr double kBuildingMinSizeM = 8.0;
 inline constexpr double kBuildingMaxSizeM = 18.0;
-// World - Cars (spawned near the drone, deleted when far from it)
-inline constexpr double kCarLengthM = 4.5;
-inline constexpr double kCarWidthM = 2.0;
-inline constexpr double kCarSpeedMps = 8.0;
+// World - Cars (fill every lane at start, wrap around at the world edge)
+inline constexpr float kCarLengthM = 4.5f;
+inline constexpr float kCarWidthM = 2.0f;
+inline constexpr float kCarSpeedMps = 8.0f;
+inline constexpr float kCarMinGapM = 3.0f;
+inline constexpr float kCarMaxGapM = 25.0f;
 inline constexpr uint8_t kCarColorCount = 4;
-inline constexpr double kCarSpawnIntervalS = 2.0;
-inline constexpr double kCarSpawnDistanceM = 60.0;
-inline constexpr double kCarDespawnDistanceM = 100.0;
-inline constexpr uint8_t kCarSpawnRoadRange = 1;
 
 // Simulation loop
 inline constexpr double kUpdateRateHz = 50.0;
