@@ -3,23 +3,38 @@
 
 #include <types.h>
 
-namespace drone_simulator::Drone
+namespace drone_simulator::drone
 {
-
 
     struct VelocityCommand
     {
-        f64 velocity_x = 0.0;
-        f64 velocity_y = 0.0;
+        f64 x = 0.0;
+        f64 y = 0.0;
+    };
+
+    struct DroneVelocity
+    {
+        f64 x = 0.0;
+        f64 y = 0.0;
     };
 
     struct DroneState
     {
-        f64 estimated_velocity_x = 0.0;
-        f64 estimated_velocity_y = 0.0;
-
-        u8 battery_percentage = 100U;
+        DroneVelocity velocity = DroneVelocity{};
+        f64 battery_percentage = 100U;
         u32 drone_id = 1U;
+    };
+
+    class Drone
+    {
+    public:
+        Drone() = default;
+        void HandleCommand(const VelocityCommand &command);
+        void Update(f64 delta_time);
+        const DroneState &GetState() const;
+
+    private:
+        DroneState state_{};
     };
 }
 

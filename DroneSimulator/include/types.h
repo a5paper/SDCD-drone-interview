@@ -3,8 +3,6 @@
 
 #include <cstdint>
 
-namespace drone_simulator {
-
 using u8 = std::uint8_t;
 using u16 = std::uint16_t;
 using u32 = std::uint32_t;
@@ -18,7 +16,5 @@ using f64 = double;
 using b8 = bool;
 using char_t = char;
 using byte_t = std::uint8_t;
-
-} 
 
 #endif
