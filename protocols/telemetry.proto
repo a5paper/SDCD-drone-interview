@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package drone_protocol;
+
+message Telemetry {
+  uint64 sequence = 1;
+  double timestamp_s = 2;
+  uint64 frame_id = 3;
+  double speed_mps = 4;
+  double battery_percentage = 5;
+}
