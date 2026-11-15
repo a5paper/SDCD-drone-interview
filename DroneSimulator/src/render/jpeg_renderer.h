@@ -13,7 +13,7 @@ namespace drone_simulator::render {
 
 class JpegRenderer {
  public:
-  // Renders and JPEG-encodes the frame. GetJpeg() is empty if encoding failed.
+  // GetJpeg() is empty if encoding failed.
   const cv::Mat& Render(const world::WorldState& state);
   const std::vector<uint8_t>& GetJpeg() const;
 

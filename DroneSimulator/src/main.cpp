@@ -6,6 +6,9 @@
 #include <format>
 #include <iomanip>
 #include <iostream>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <thread>
 #include <vector>
 
@@ -13,6 +16,7 @@
 #include <opencv2/imgcodecs.hpp>
 
 #include "core/config.h"
+#include "core/network_config.h"
 #include "network/command_receiver.h"
 #include "network/video_streamer.h"
 #include "render/jpeg_renderer.h"
@@ -52,24 +56,24 @@ void ShowPreview(const std::vector<uint8_t>& jpeg) {
 
 }
 
-int Run() {
+int Run(const config::NetworkConfig& network) {
   network::CommandReceiver receiver;
-  if (!receiver.Open(config::kCommandPort)) {
+  if (!receiver.Open(network.command_port)) {
     std::cerr << "Failed to open command socket: " << std::strerror(errno)
               << std::endl;
     return EXIT_FAILURE;
   }
-  std::cout << "Listening for commands on UDP " << config::kCommandPort
+  std::cout << "Listening for commands on UDP " << network.command_port
             << std::endl;
 
   network::VideoStreamer streamer;
-  if (!streamer.Open(config::kGcsAddress, config::kVideoPort)) {
+  if (!streamer.Open(network.gcs_address, network.video_port)) {
     std::cerr << "Failed to open video socket: " << std::strerror(errno)
               << std::endl;
     return EXIT_FAILURE;
   }
-  std::cout << "Streaming video to " << config::kGcsAddress << ":"
-            << config::kVideoPort << std::endl;
+  std::cout << "Streaming video to " << network.gcs_address << ":"
+            << network.video_port << std::endl;
 
   Simulator simulator;
   render::JpegRenderer renderer;
@@ -113,4 +117,19 @@ int Run() {
 
 }
 
-int main() { return drone_simulator::Run(); }
+int main(int argc, char** argv) {
+  std::string config_path = DRONE_SIMULATOR_DEFAULT_CONFIG;
+  if (argc == 3 && std::string_view(argv[1]) == "--config") {
+    config_path = argv[2];
+  } else if (argc != 1) {
+    std::cerr << "Usage: " << argv[0] << " [--config PATH]" << std::endl;
+    return EXIT_FAILURE;
+  }
+
+  const std::optional<drone_simulator::config::NetworkConfig> network =
+      drone_simulator::config::LoadNetworkConfig(config_path);
+  if (!network) {
+    return EXIT_FAILURE;
+  }
+  return drone_simulator::Run(*network);
+}

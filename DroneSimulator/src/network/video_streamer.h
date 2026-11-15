@@ -11,7 +11,6 @@
 
 namespace drone_simulator::network {
 
-// Splits each JPEG frame into VideoChunk datagrams and sends them over UDP.
 class VideoStreamer {
  public:
   [[nodiscard]] bool Open(std::string_view address, uint16_t port);

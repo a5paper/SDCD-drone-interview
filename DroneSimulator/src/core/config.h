@@ -3,7 +3,6 @@
 
 #include <cstddef>
 #include <cstdint>
-#include <string_view>
 
 namespace drone_simulator::config {
 
@@ -44,9 +43,6 @@ inline constexpr bool kShowPreview = true;
 inline constexpr int kPreviewWaitMs = 1;
 
 // Network
-inline constexpr uint16_t kCommandPort = 5600;
-inline constexpr std::string_view kGcsAddress = "127.0.0.1";
-inline constexpr uint16_t kVideoPort = 5602;
 inline constexpr size_t kMtuSize = 1500;
 inline constexpr size_t kMaxChunkPayload = 1400;
 

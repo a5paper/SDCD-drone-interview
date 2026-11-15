@@ -1,8 +1,11 @@
 add_compile_options(-Wall -Wextra -Wpedantic $<$<CONFIG:Debug>:-g3>)
 
-# core: config constants (header-only)
-add_library(drone_core INTERFACE)
-target_include_directories(drone_core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
+# core: config constants, INI reader, network config loader
+add_library(drone_core STATIC
+    src/core/ini_file.cpp
+    src/core/network_config.cpp
+)
+target_include_directories(drone_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 # sim: drone, world and simulation step
 add_library(drone_sim STATIC
@@ -31,6 +34,9 @@ add_library(drone_network STATIC
 target_link_libraries(drone_network PUBLIC drone_core drone_protocol)
 
 add_executable(DroneSimulator src/main.cpp)
+target_compile_definitions(DroneSimulator PRIVATE
+    DRONE_SIMULATOR_DEFAULT_CONFIG="${PROJECT_SOURCE_DIR}/config/network.ini"
+)
 target_link_libraries(DroneSimulator PRIVATE
     drone_sim
     drone_render

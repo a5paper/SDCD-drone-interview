@@ -2,7 +2,7 @@
 # Configures and builds the project. CMake generates the protobuf sources.
 # Usage: ./compile.sh [Debug|Release] [--clean]
 # Re-run under bash if invoked via `sh script.sh` (dash lacks pipefail etc.)
-if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi  # POSIX test: may run under dash
+if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

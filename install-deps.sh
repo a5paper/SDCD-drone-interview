@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Installs the system packages needed to build the project (Ubuntu/Debian).
 # Re-run under bash if invoked via `sh script.sh` (dash lacks pipefail etc.)
-if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi  # POSIX test: may run under dash
+if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 set -euo pipefail
 
 SUDO=""
