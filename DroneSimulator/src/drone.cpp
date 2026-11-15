@@ -10,15 +10,16 @@ namespace drone_simulator::drone
         if (!std::isfinite(command.velocity_x()) ||
             !std::isfinite(command.velocity_y()))
         {
-            return;
+            return false;
         }
 
-        // Todo(seani) move to validate function
         if (command.velocity_x() < -1.0 || command.velocity_x() > 1.0 ||
             command.velocity_y() < -1.0 || command.velocity_y() > 1.0)
         {
-            return;
+            return false;
         }
+
+        return true;
     }
 
     void Drone::HandleCommand(const drone_protocol::VelocityChangeCommand &command)

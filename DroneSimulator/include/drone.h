@@ -1,6 +1,7 @@
 #ifndef DRONE_SIMULATOR_INCLUDE_DRONE_H_
 #define DRONE_SIMULATOR_INCLUDE_DRONE_H_
 
+#include <config.h>
 #include <types.h>
 #include<commands.pb.h>
 
@@ -17,7 +18,7 @@ namespace drone_simulator::drone
     struct DroneState
     {
         DroneVelocity velocity = DroneVelocity{};
-        f64 battery_percentage = 100U;
+        f64 battery_percentage = config::kInitialBattery;
         u32 drone_id = 1U;
     };
 
