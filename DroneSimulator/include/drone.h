@@ -36,6 +36,7 @@ namespace drone_simulator::drone
     private:
         DroneState state_{};
     };
+
 }
 
 #endif

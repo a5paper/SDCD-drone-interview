@@ -14,6 +14,8 @@ namespace drone_simulator
             drone.GetState().velocity.y * delta_time;
 
         world.state.elapsed_time += delta_time;
+
+        drone.Update(delta_time);
     }
 
 }

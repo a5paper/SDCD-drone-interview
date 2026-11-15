@@ -26,8 +26,8 @@ namespace drone_simulator::drone
             return;
         }
 
-        state_.velocity.x = command.x * config::kMaxVelocity;
-        state_.velocity.y = command.y * config::kMaxVelocity;
+        state_.velocity.x = command.x * config::kMaxSpeed;
+        state_.velocity.y = command.y * config::kMaxSpeed;
     }
 
     void Drone::Update(f64 delta_time)

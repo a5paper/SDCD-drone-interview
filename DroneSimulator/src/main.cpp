@@ -4,6 +4,7 @@
 #include <simulator.h>
 
 #include "types.h"
+#include <iomanip>
 
 int main()
 {
@@ -11,13 +12,16 @@ int main()
     auto previous_time = Clock::now();
 
     // Debug
+    std::cout << std::fixed << std::setprecision(2);
+
     f64 zigzag_timer = 0.0;
     f64 zigzag_timing = 3.0;
 
     drone_simulator::drone::VelocityCommand command1 = {1, 1};
-    drone_simulator::drone::VelocityCommand command2 = {-1, -1};
+    drone_simulator::drone::VelocityCommand command2 = {-1, 1};
     bool c1 = false;
 
+    // Start Main Loo[]
     drone_simulator::Simulator simulator = {};
 
     std::cout << "Drone Simulator starting..." << std::endl;
@@ -39,17 +43,20 @@ int main()
         {
             zigzag_timer = 0.0;
             c1 = !c1;
+            std::cout << "Position X: "
+                      << simulator.world.state.drone_position_x << " m\n";
 
-            simulator.drone.HandleCommand(c1 ? command1 : command2);
+            std::cout << "Position Y: "
+                      << simulator.world.state.drone_position_y << " m\n";
+            
+            std::cout << "Battery: "
+                      << simulator.drone.GetState().battery_percentage << " %\n\n";
         }
+        
 
+
+        simulator.drone.HandleCommand(c1 ? command1 : command2);
         simulator.Update(delta_time);
-
-        std::cout << "Position X: "
-                  << simulator.world.state.drone_position_x << " m\n";
-
-        std::cout << "Position Y: "
-                  << simulator.world.state.drone_position_y << " m\n";
     }
 
     return 0;
