@@ -18,6 +18,10 @@ namespace drone_simulator::render
         cv::Point2d WorldToScreen_(f64 world_x, f64 world_y,
                                  const world::WorldState &state) const;
 
+        // Filled axis-aligned rectangle given in world metres.
+        void DrawWorldRect_(f64 forward_min, f64 forward_max, f64 right_min, f64 right_max,
+                            const cv::Scalar &color, const world::WorldState &state);
+
         cv::Mat frame_;
     };
 
