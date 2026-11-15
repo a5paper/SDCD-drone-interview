@@ -6,8 +6,11 @@
 #include <iomanip>
 #include <iostream>
 #include <thread>
-#include <opencv2/core.hpp>
+
+#include <opencv2/highgui.hpp>
+
 #include "config.h"
+#include "renderer.h"
 #include "simulator.h"
 #include "types.h"
 #include "udp_socket.h"
@@ -17,9 +20,6 @@ int main()
     using namespace std::chrono;
     using Clock = steady_clock;
     using namespace drone_simulator;
-
-    std::cout << "OpenCV " << CV_VERSION << std::endl;
-
 
     const auto frame_duration = duration<f64>(config::kFPS);
 
@@ -40,8 +40,7 @@ int main()
         return err;
     }
 
-    std::cout << "Listening for commands on UDP "
-              << config::kCommandPort << std::endl;
+    std::cout << "Listening for commands on UDP " << config::kCommandPort << std::endl;
 
     // Start Main Loop
     Simulator simulator = {};
@@ -49,6 +48,10 @@ int main()
 
     auto rx_buffer = std::array<byte_t, config::kMtuSize>();
 
+
+    // Renderer
+
+    render::Renderer renderer;
     while (true)
     {
         const auto current_time = Clock::now();
@@ -62,17 +65,13 @@ int main()
         if (status_print_timer >= config::kStatusPrintIntervalS)
         {
             status_print_timer = 0.0;
-            std::cout << "Position X: "
-                      << simulator.world.state.drone_position_x << " m\n";
+            std::cout << "Position X: " << simulator.world.state.drone_position_x << " m\n";
 
-            std::cout << "Position Y: "
-                      << simulator.world.state.drone_position_y << " m\n";
+            std::cout << "Position Y: " << simulator.world.state.drone_position_y << " m\n";
 
-            std::cout << "Battery: "
-                      << simulator.drone.GetState().battery_percentage << " %\n";
+            std::cout << "Battery: " << simulator.drone.GetState().battery_percentage << " %\n";
 
-            std::cout << "Time On: "
-                      << std::format("{:%T}", current_time - start_time) << "\n\n";
+            std::cout << "Time On: " << std::format("{:%T}", current_time - start_time) << "\n\n";
         }
 
         // Rx Loop
@@ -93,6 +92,13 @@ int main()
         }
 
         simulator.Update(delta_time);
+
+        const cv::Mat &frame = renderer.Render(simulator.world.state);
+        if (config::kShowPreview)
+        {
+            cv::imshow("Drone camera", frame);
+            cv::waitKey(1);
+        }
 
         std::this_thread::sleep_until(current_time +
                                       duration_cast<Clock::duration>(frame_duration));

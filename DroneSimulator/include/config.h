@@ -22,6 +22,14 @@ namespace drone_simulator::config
     constexpr u32 kBatteryLifetimeS = 1200;
     constexpr f64 kBatteryDrainPerS = kMaxBattery / kBatteryLifetimeS;
 
+    // Video
+    constexpr i32 kFrameWidthPx = 640;
+    constexpr i32 kFrameHeightPx = 640;
+    constexpr f64 kPixelsPerMeter = 10.0;
+    // Video - Debug
+    constexpr f64 kDroneSizeM = 2.0;
+    constexpr b8 kShowPreview = true;
+
     // Network
     constexpr u16 kCommandPort = 5600;
     constexpr u16 kMtuSize = 1500;

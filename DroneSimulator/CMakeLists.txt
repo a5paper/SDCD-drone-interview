@@ -4,6 +4,7 @@ add_executable(DroneSimulator
     src/drone.cpp
     src/world.cpp
     src/udp_socket.cpp
+    src/renderer.cpp
 )
 
 target_include_directories(DroneSimulator PRIVATE
