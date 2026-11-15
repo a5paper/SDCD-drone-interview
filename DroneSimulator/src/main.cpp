@@ -9,9 +9,10 @@
 #include <thread>
 
 #include <opencv2/highgui.hpp>
+#include <opencv2/imgcodecs.hpp>
 
 #include "config.h"
-#include "renderer.h"
+#include "jpeg_renderer.h"
 #include "simulator.h"
 #include "types.h"
 #include "udp_socket.h"
@@ -47,7 +48,7 @@ int main()
 
     // Simulation and rendering
     Simulator simulator = {};
-    render::Renderer renderer;
+    render::JpegRenderer renderer;
     u64 tick = 0;
 
     // Main loop
@@ -68,6 +69,9 @@ int main()
             std::cout << "Position X: " << simulator.world.state.drone_position_x << " m\n";
             std::cout << "Position Y: " << simulator.world.state.drone_position_y << " m\n";
             std::cout << "Battery: " << simulator.drone.GetState().battery_percentage << " %\n";
+            const f64 jpeg_kib = renderer.GetJpeg().size() / config::kBytesPerKiB;
+            std::cout << "JPEG: " << jpeg_kib << " KiB (" << jpeg_kib * config::kVideoFps
+                      << " KiB/s)\n";
             std::cout << "Time On: " << std::format("{:%T}", current_time - start_time) << "\n\n";
         }
 
@@ -92,10 +96,10 @@ int main()
 
         if (tick++ % config::kTicksPerFrame == 0)
         {
-            const cv::Mat &frame = renderer.Render(simulator.world.state);
-            if (config::kShowPreview)
+            renderer.Render(simulator.world.state);
+            if (config::kShowPreview && !renderer.GetJpeg().empty())
             {
-                cv::imshow("Drone camera", frame);
+                cv::imshow("Drone camera", cv::imdecode(renderer.GetJpeg(), cv::IMREAD_COLOR));
                 cv::waitKey(config::kPreviewWaitMs);
             }
         }

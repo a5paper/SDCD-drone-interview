@@ -16,6 +16,7 @@ namespace drone_simulator::config
     constexpr f64 kTickPeriodS = 1.0 / kUpdateRateHz;
     constexpr f64 kStatusPrintIntervalS = 3.0;
     constexpr i32 kStatusPrintPrecision = 2;
+    constexpr f64 kBytesPerKiB = 1024.0;
 
     // Drone
     constexpr f64 kMaxCommandVelocity = 1.0;
@@ -34,6 +35,7 @@ namespace drone_simulator::config
     constexpr f64 kRoadWidthM = 8.0;
     // Video - Stream
     constexpr f64 kVideoFps = 25.0;
+    constexpr i32 kJpegQuality = 70;
     constexpr u32 kTicksPerFrame = static_cast<u32>(kUpdateRateHz / kVideoFps);
     static_assert(kTicksPerFrame * kVideoFps == kUpdateRateHz,
                   "kUpdateRateHz must be a whole multiple of kVideoFps");

@@ -5,6 +5,7 @@ add_executable(DroneSimulator
     src/world.cpp
     src/udp_socket.cpp
     src/renderer.cpp
+    src/jpeg_renderer.cpp
 )
 
 target_include_directories(DroneSimulator PRIVATE
@@ -15,6 +16,6 @@ target_link_libraries(DroneSimulator PRIVATE
     drone_protocol
     opencv_core
     opencv_imgproc
+    opencv_imgcodecs
     opencv_highgui
-
 )
