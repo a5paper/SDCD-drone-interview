@@ -15,10 +15,10 @@ namespace drone_simulator::config
     constexpr f64 kTimeStepS = 1.0 / kUpdateRateHz;
     constexpr f64 kMaxVelocity = 1.0;
 
-    constexpr f64 kMaxBatteryS = 100.0;
-    constexpr f64 kInitialBattery =  kMaxBatteryS*0.6;
+    constexpr f64 kMaxBattery = 100.0;
+    constexpr f64 kInitialBattery =  kMaxBattery*0.6;
     constexpr uint32_t kBatteryLifetimeS = 3600;
-    constexpr f64 kBatteryDrainPerS = kMaxBatteryS/kBatteryLifetimeS;
+    constexpr f64 kBatteryDrainPerS = kMaxBattery/kBatteryLifetimeS;
 }
 
 #endif
