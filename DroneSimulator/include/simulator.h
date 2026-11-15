@@ -7,16 +7,16 @@
 namespace drone_simulator
 {
 
-  class Simulator
-  {
-  public:
-    Simulator() = default;
+    class Simulator
+    {
+    public:
+        Simulator() = default;
 
-    void Update(f64 delta_time);
+        void Update(f64 delta_time);
 
-    drone::Drone drone{};
-    world::World world{};
-  };
+        drone::Drone drone{};
+        world::World world{};
+    };
 
 }
 

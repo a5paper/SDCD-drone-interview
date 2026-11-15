@@ -1,12 +1,14 @@
-
 #include "drone.h"
+
 #include <cmath>
+
 #include "config.h"
 
 namespace drone_simulator::drone
 {
 
-    bool IsCommandValid_(const drone_protocol::VelocityChangeCommand &command) {
+    b8 IsCommandValid_(const drone_protocol::VelocityChangeCommand &command)
+    {
         if (!std::isfinite(command.velocity_x()) ||
             !std::isfinite(command.velocity_y()))
         {
@@ -24,8 +26,10 @@ namespace drone_simulator::drone
 
     void Drone::HandleCommand(const drone_protocol::VelocityChangeCommand &command)
     {
-
-        if(!IsCommandValid_(command)) { return; }
+        if (!IsCommandValid_(command))
+        {
+            return;
+        }
 
         state_.velocity.x = command.velocity_x() * config::kMaxSpeed;
         state_.velocity.y = command.velocity_y() * config::kMaxSpeed;

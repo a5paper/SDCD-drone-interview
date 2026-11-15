@@ -4,14 +4,12 @@ add_executable(DroneSimulator
     src/drone.cpp
     src/world.cpp
     src/udp_socket.cpp
-    ${CMAKE_SOURCE_DIR}/generated/cpp/commands.pb.cc
 )
 
 target_include_directories(DroneSimulator PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
-    ${CMAKE_SOURCE_DIR}/generated/cpp
 )
 
 target_link_libraries(DroneSimulator PRIVATE
-    protobuf::libprotobuf
+    drone_protocol
 )

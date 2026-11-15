@@ -1,13 +1,13 @@
 #ifndef DRONE_SIMULATOR_INCLUDE_DRONE_H_
 #define DRONE_SIMULATOR_INCLUDE_DRONE_H_
 
-#include <config.h>
-#include <types.h>
-#include<commands.pb.h>
+#include <commands.pb.h>
+
+#include "config.h"
+#include "types.h"
 
 namespace drone_simulator::drone
 {
-
 
     struct DroneVelocity
     {

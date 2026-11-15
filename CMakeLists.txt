@@ -7,4 +7,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Protobuf REQUIRED)
 
+add_subdirectory(protocols)
 add_subdirectory(DroneSimulator)

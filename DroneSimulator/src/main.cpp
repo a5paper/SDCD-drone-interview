@@ -1,15 +1,16 @@
-#include <iostream>
 #include <array>
+#include <cerrno>
 #include <chrono>
-#include <thread>
-#include <iomanip>
-#include <format>
 #include <cstring>
+#include <format>
+#include <iomanip>
+#include <iostream>
+#include <thread>
 
-#include "simulator.h"
-#include "udp_socket.h"
-#include "types.h"
 #include "config.h"
+#include "simulator.h"
+#include "types.h"
+#include "udp_socket.h"
 
 int main()
 {
@@ -17,23 +18,21 @@ int main()
     using Clock = steady_clock;
     using namespace drone_simulator;
 
-    const auto frame_duration = duration<f64>(
-        config::kFPS);
+    const auto frame_duration = duration<f64>(config::kFPS);
 
     auto previous_time = Clock::now();
 
     // Debug
     std::cout << std::fixed << std::setprecision(2);
 
-    f64 seconds_timer = 0.0;
-    f64 seconds_duration = 3.0;
-    auto start_time = previous_time;
+    f64 status_print_timer = 0.0;
+    const auto start_time = previous_time;
 
     // Set up network
     network::UdpSocket sock;
     if (!sock.Bind(config::kCommandPort) || !sock.SetNonBlocking())
     {
-        const int err = errno;
+        const i32 err = errno;
         std::cerr << std::strerror(err) << std::endl;
         return err;
     }
@@ -45,24 +44,21 @@ int main()
     Simulator simulator = {};
     std::cout << "Drone Simulator starting..." << std::endl;
 
-    auto rx_buffer = std::array<u8, config::kMtuSize>();
+    auto rx_buffer = std::array<byte_t, config::kMtuSize>();
 
     while (true)
     {
         const auto current_time = Clock::now();
 
-        const f64 delta_time =
-            duration<f64>(
-                current_time - previous_time)
-                .count();
+        const f64 delta_time = duration<f64>(current_time - previous_time).count();
 
         previous_time = current_time;
 
         // Periodic status printout
-        seconds_timer += delta_time;
-        if (seconds_timer >= seconds_duration)
+        status_print_timer += delta_time;
+        if (status_print_timer >= config::kStatusPrintIntervalS)
         {
-            seconds_timer = 0.0;
+            status_print_timer = 0.0;
             std::cout << "Position X: "
                       << simulator.world.state.drone_position_x << " m\n";
 
@@ -95,9 +91,8 @@ int main()
 
         simulator.Update(delta_time);
 
-        std::this_thread::sleep_until(
-            current_time + duration_cast<Clock::duration>(
-                               frame_duration));
+        std::this_thread::sleep_until(current_time +
+                                      duration_cast<Clock::duration>(frame_duration));
     }
 
     return 0;

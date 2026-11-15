@@ -9,8 +9,8 @@ namespace drone_simulator
     {
         drone.Update(delta_time);
 
-        auto& droneVelocity = drone.GetState().velocity;
-        world.Update(droneVelocity.x, droneVelocity.y, delta_time);
+        const auto &drone_velocity = drone.GetState().velocity;
+        world.Update(drone_velocity.x, drone_velocity.y, delta_time);
     }
 
 }

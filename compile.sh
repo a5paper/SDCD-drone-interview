@@ -1,13 +1,11 @@
 #!/usr/bin/env bash
-# Generates protobuf sources and builds the project.
+# Configures and builds the project. CMake generates the protobuf sources.
 # Usage: ./compile.sh [Debug|Release] [--clean]
 # Re-run under bash if invoked via `sh script.sh` (dash lacks pipefail etc.)
 if [ -z "${BASH_VERSION:-}" ]; then exec bash "$0" "$@"; fi
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROTO_DIR="$ROOT_DIR/protocols"
-GEN_CPP_DIR="$ROOT_DIR/generated/cpp"
 BUILD_DIR="$ROOT_DIR/build"
 
 BUILD_TYPE="Debug"
@@ -31,13 +29,9 @@ for tool in cmake protoc; do
 done
 
 if [[ $CLEAN -eq 1 ]]; then
-    echo "Cleaning build and generated directories..."
-    rm -rf "$BUILD_DIR" "$ROOT_DIR/generated"
+    echo "Cleaning build directory..."
+    rm -rf "$BUILD_DIR"
 fi
-
-echo "Generating protobuf sources..."
-mkdir -p "$GEN_CPP_DIR"
-protoc -I "$PROTO_DIR" --cpp_out="$GEN_CPP_DIR" "$PROTO_DIR"/*.proto
 
 echo "Configuring ($BUILD_TYPE)..."
 cmake -S "$ROOT_DIR" -B "$BUILD_DIR" \
