@@ -10,9 +10,9 @@ namespace drone_simulator::network
 
     enum class ReceiveStatus
     {
-        kData,       // A datagram was read into the buffer.
-        kWouldBlock, // No datagram pending (non-blocking socket).
-        kError,      // Socket error; see error_code (errno).
+        kData,
+        kWouldBlock,
+        kError, // error_code holds errno
     };
 
     struct ReceiveResult
@@ -41,9 +41,11 @@ namespace drone_simulator::network
         ReceiveResult Receive(std::span<byte_t> buffer);
 
     private:
+        static constexpr i32 kInvalidFd = -1;
+
         void Close_();
 
-        i32 fd_ = -1;
+        i32 fd_ = kInvalidFd;
     };
 
 }

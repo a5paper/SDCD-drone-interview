@@ -21,7 +21,7 @@ namespace drone_simulator::network
     }
 
     UdpSocket::UdpSocket(UdpSocket &&other) noexcept
-        : fd_(std::exchange(other.fd_, -1))
+        : fd_(std::exchange(other.fd_, kInvalidFd))
     {
     }
 
@@ -30,14 +30,14 @@ namespace drone_simulator::network
         if (this != &other)
         {
             Close_();
-            fd_ = std::exchange(other.fd_, -1);
+            fd_ = std::exchange(other.fd_, kInvalidFd);
         }
         return *this;
     }
 
     b8 UdpSocket::IsOpen() const
     {
-        return fd_ >= 0;
+        return fd_ != kInvalidFd;
     }
 
     b8 UdpSocket::Bind(u16 port)
@@ -97,7 +97,7 @@ namespace drone_simulator::network
         if (IsOpen())
         {
             ::close(fd_);
-            fd_ = -1;
+            fd_ = kInvalidFd;
         }
     }
 

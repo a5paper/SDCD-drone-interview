@@ -1,6 +1,7 @@
 #include <array>
 #include <cerrno>
 #include <chrono>
+#include <cstdlib>
 #include <cstring>
 #include <format>
 #include <iomanip>
@@ -21,12 +22,12 @@ int main()
     using Clock = steady_clock;
     using namespace drone_simulator;
 
-    const auto frame_duration = duration<f64>(config::kFPS);
+    const auto tick_duration = duration<f64>(config::kTickPeriodS);
 
     auto previous_time = Clock::now();
 
     // Debug
-    std::cout << std::fixed << std::setprecision(2);
+    std::cout << std::fixed << std::setprecision(config::kStatusPrintPrecision);
 
     f64 status_print_timer = 0.0;
     const auto start_time = previous_time;
@@ -37,21 +38,20 @@ int main()
     {
         const i32 err = errno;
         std::cerr << std::strerror(err) << std::endl;
-        return err;
+        return EXIT_FAILURE;
     }
 
     std::cout << "Listening for commands on UDP " << config::kCommandPort << std::endl;
 
-    // Start Main Loop
-    Simulator simulator = {};
-    std::cout << "Drone Simulator starting..." << std::endl;
-
     auto rx_buffer = std::array<byte_t, config::kMtuSize>();
 
-
-    // Renderer
-
+    // Simulation and rendering
+    Simulator simulator = {};
     render::Renderer renderer;
+    u64 tick = 0;
+
+    // Main loop
+    std::cout << "Drone Simulator starting..." << std::endl;
     while (true)
     {
         const auto current_time = Clock::now();
@@ -66,11 +66,8 @@ int main()
         {
             status_print_timer = 0.0;
             std::cout << "Position X: " << simulator.world.state.drone_position_x << " m\n";
-
             std::cout << "Position Y: " << simulator.world.state.drone_position_y << " m\n";
-
             std::cout << "Battery: " << simulator.drone.GetState().battery_percentage << " %\n";
-
             std::cout << "Time On: " << std::format("{:%T}", current_time - start_time) << "\n\n";
         }
 
@@ -93,15 +90,18 @@ int main()
 
         simulator.Update(delta_time);
 
-        const cv::Mat &frame = renderer.Render(simulator.world.state);
-        if (config::kShowPreview)
+        if (tick++ % config::kTicksPerFrame == 0)
         {
-            cv::imshow("Drone camera", frame);
-            cv::waitKey(1);
+            const cv::Mat &frame = renderer.Render(simulator.world.state);
+            if (config::kShowPreview)
+            {
+                cv::imshow("Drone camera", frame);
+                cv::waitKey(config::kPreviewWaitMs);
+            }
         }
 
         std::this_thread::sleep_until(current_time +
-                                      duration_cast<Clock::duration>(frame_duration));
+                                      duration_cast<Clock::duration>(tick_duration));
     }
 
     return 0;

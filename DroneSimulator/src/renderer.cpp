@@ -51,7 +51,7 @@ namespace drone_simulator::render
 
         const f64 radius = config::kDroneSizeM / 2.0;
         DrawWorldRect_(x - radius, x + radius, y - radius, y + radius, kDroneColor, state);
-        cv::circle(frame_, WorldToScreen_(x, y, state), 3, kDroneCenterColor, cv::FILLED);
+        cv::circle(frame_, WorldToScreen_(x, y, state), config::kDroneCenterRadiusPx, kDroneCenterColor, cv::FILLED);
 
         return frame_;
     }

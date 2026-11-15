@@ -15,8 +15,8 @@ namespace drone_simulator::drone
             return false;
         }
 
-        if (command.velocity_x() < -1.0 || command.velocity_x() > 1.0 ||
-            command.velocity_y() < -1.0 || command.velocity_y() > 1.0)
+        if (std::abs(command.velocity_x()) > config::kMaxCommandVelocity ||
+            std::abs(command.velocity_y()) > config::kMaxCommandVelocity)
         {
             return false;
         }
@@ -47,7 +47,6 @@ namespace drone_simulator::drone
 
         if (state_.battery_percentage <= 0.0)
         {
-            // Clamps to avoid negative numbers
             state_.battery_percentage = 0.0;
 
             state_.velocity.x = 0.0;
