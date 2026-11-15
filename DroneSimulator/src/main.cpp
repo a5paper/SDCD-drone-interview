@@ -1,10 +1,13 @@
 #include <iostream>
+#include <array>
 #include <chrono>
 #include <thread>
 #include <iomanip>
 #include <format>
+#include <cstring>
 
-#include <simulator.h>
+#include "simulator.h"
+#include "udp_socket.h"
 #include "types.h"
 #include "config.h"
 
@@ -12,33 +15,37 @@ int main()
 {
     using namespace std::chrono;
     using Clock = steady_clock;
+    using namespace drone_simulator;
 
     const auto frame_duration = duration<f64>(
-        drone_simulator::config::kFPS);
+        config::kFPS);
 
     auto previous_time = Clock::now();
 
     // Debug
     std::cout << std::fixed << std::setprecision(2);
 
-    f64 zigzag_timer = 0.0;
-    f64 zigzag_timing = 3.0;
+    f64 seconds_timer = 0.0;
+    f64 seconds_duration = 3.0;
     auto start_time = previous_time;
 
-    drone_protocol::VelocityChangeCommand command1;
-    command1.set_velocity_x(1);
-    command1.set_velocity_y(-0.5);
+    // Set up network
+    network::UdpSocket sock;
+    if (!sock.Bind(config::kCommandPort) || !sock.SetNonBlocking())
+    {
+        const int err = errno;
+        std::cerr << std::strerror(err) << std::endl;
+        return err;
+    }
 
-    drone_protocol::VelocityChangeCommand command2;
-    command2.set_velocity_x(1);
-    command2.set_velocity_y(0.5);
-
-    bool c1 = false;
+    std::cout << "Listening for commands on UDP "
+              << config::kCommandPort << std::endl;
 
     // Start Main Loop
-    drone_simulator::Simulator simulator = {};
-
+    Simulator simulator = {};
     std::cout << "Drone Simulator starting..." << std::endl;
+
+    auto rx_buffer = std::array<u8, config::kMtuSize>();
 
     while (true)
     {
@@ -51,12 +58,11 @@ int main()
 
         previous_time = current_time;
 
-        // Debug movement
-        zigzag_timer += delta_time;
-        if (zigzag_timer >= zigzag_timing)
+        // Periodic status printout
+        seconds_timer += delta_time;
+        if (seconds_timer >= seconds_duration)
         {
-            zigzag_timer = 0.0;
-            c1 = !c1;
+            seconds_timer = 0.0;
             std::cout << "Position X: "
                       << simulator.world.state.drone_position_x << " m\n";
 
@@ -67,13 +73,28 @@ int main()
                       << simulator.drone.GetState().battery_percentage << " %\n";
 
             std::cout << "Time On: "
-                      << std::format("{:%T}", current_time-start_time) << "\n\n";
+                      << std::format("{:%T}", current_time - start_time) << "\n\n";
         }
 
-        simulator.drone.HandleCommand(c1 ? command1 : command2);
+        // Rx Loop
+        network::ReceiveResult res;
+        while (network::ReceiveStatus::kWouldBlock != (res = sock.Receive(rx_buffer)).status)
+        {
+            if (res.status == network::ReceiveStatus::kError)
+            {
+                std::cerr << "Receive failed: " << std::strerror(res.error_code) << std::endl;
+                break;
+            }
+
+            drone_protocol::VelocityChangeCommand command;
+            if (command.ParseFromArray(rx_buffer.data(), static_cast<int>(res.bytes)))
+            {
+                simulator.drone.HandleCommand(command);
+            }
+        }
+
         simulator.Update(delta_time);
 
-        
         std::this_thread::sleep_until(
             current_time + duration_cast<Clock::duration>(
                                frame_duration));

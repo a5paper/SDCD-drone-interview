@@ -9,7 +9,7 @@ namespace drone_simulator::config
     constexpr f64 kWidth = 1000.0;
     constexpr f64 kHeight = 1000.0;
 
-
+    constexpr u16 kMtuSize = 1500;
 
     constexpr f64 kUpdateRateHz = 50;
     constexpr f64 kFPS = 1.0 / kUpdateRateHz;
