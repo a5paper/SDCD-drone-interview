@@ -34,20 +34,17 @@ namespace drone_simulator::render
 
         frame_.setTo(kGrassColor);
 
-        // Roads every kBlockSizeM; only the ones in view are drawn.
         constexpr f64 kBlock = config::kBlockSizeM;
         constexpr f64 kHalfRoad = config::kRoadWidthM / 2.0;
 
         for (f64 k = std::floor(right_min / kBlock); k <= std::ceil(right_max / kBlock); ++k)
         {
-            // North-south road (vertical on screen).
             DrawWorldRect_(forward_min, forward_max, k * kBlock - kHalfRoad, k * kBlock + kHalfRoad,
                            kRoadColor, state);
         }
 
         for (f64 k = std::floor(forward_min / kBlock); k <= std::ceil(forward_max / kBlock); ++k)
         {
-            // East-west road (horizontal on screen).
             DrawWorldRect_(k * kBlock - kHalfRoad, k * kBlock + kHalfRoad, right_min, right_max,
                            kRoadColor, state);
         }
@@ -73,7 +70,6 @@ namespace drone_simulator::render
     void Renderer::DrawWorldRect_(f64 forward_min, f64 forward_max, f64 right_min, f64 right_max,
                                   const cv::Scalar &color, const world::WorldState &state)
     {
-        // Top-left = far forward, far left. Bottom-right = near forward, far right.
         cv::rectangle(frame_, WorldToScreen_(forward_max, right_min, state),
                       WorldToScreen_(forward_min, right_max, state), color, cv::FILLED);
     }
