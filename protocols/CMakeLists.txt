@@ -1,5 +1,3 @@
-# Generates C++ sources from the .proto files at build time and exposes them
-# as a library. Regenerated automatically when a .proto file changes.
 add_library(drone_protocol STATIC)
 
 protobuf_generate(

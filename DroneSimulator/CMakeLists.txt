@@ -12,4 +12,8 @@ target_include_directories(DroneSimulator PRIVATE
 
 target_link_libraries(DroneSimulator PRIVATE
     drone_protocol
+    opencv_core
+    opencv_imgproc
+    opencv_highgui
+
 )

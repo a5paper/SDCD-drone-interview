@@ -6,7 +6,7 @@
 #include <iomanip>
 #include <iostream>
 #include <thread>
-
+#include <opencv2/core.hpp>
 #include "config.h"
 #include "simulator.h"
 #include "types.h"
@@ -17,6 +17,9 @@ int main()
     using namespace std::chrono;
     using Clock = steady_clock;
     using namespace drone_simulator;
+
+    std::cout << "OpenCV " << CV_VERSION << std::endl;
+
 
     const auto frame_duration = duration<f64>(config::kFPS);
 

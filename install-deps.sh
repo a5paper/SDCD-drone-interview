@@ -14,8 +14,11 @@ $SUDO apt-get install -y \
     build-essential \
     cmake \
     protobuf-compiler \
-    libprotobuf-dev
+    libprotobuf-dev \
+    libopencv-dev
 
 echo "Dependencies installed."
 echo "  cmake:  $(cmake --version | head -n1)"
 echo "  protoc: $(protoc --version)"
+echo "  opencv: $(pkg-config --modversion opencv4)"
+
