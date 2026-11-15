@@ -1,22 +1,24 @@
 #ifndef DRONE_SIMULATOR_SIM_SIMULATOR_H_
 #define DRONE_SIMULATOR_SIM_SIMULATOR_H_
 
+#include "protocols/commands.pb.h"
 #include "sim/drone.h"
 #include "sim/world.h"
 
-namespace drone_simulator
-{
+namespace drone_simulator {
 
-    class Simulator
-    {
-    public:
-        Simulator() = default;
+class Simulator {
+ public:
+  void HandleCommand(const drone_protocol::VelocityChangeCommand& command);
+  void Update(double delta_time);
 
-        void Update(f64 delta_time);
+  const drone::Drone& GetDrone() const;
+  const world::World& GetWorld() const;
 
-        drone::Drone drone{};
-        world::World world{};
-    };
+ private:
+  drone::Drone drone_;
+  world::World world_;
+};
 
 }
 

@@ -1,38 +1,31 @@
 #ifndef DRONE_SIMULATOR_SIM_DRONE_H_
 #define DRONE_SIMULATOR_SIM_DRONE_H_
 
-#include <commands.pb.h>
-
 #include "core/config.h"
-#include "core/types.h"
+#include "protocols/commands.pb.h"
 
-namespace drone_simulator::drone
-{
+namespace drone_simulator::drone {
 
-    struct DroneVelocity
-    {
-        f64 x = 0.0;
-        f64 y = 0.0;
-    };
+struct DroneVelocity {
+  double x = 0.0;
+  double y = 0.0;
+};
 
-    struct DroneState
-    {
-        DroneVelocity velocity = DroneVelocity{};
-        f64 battery_percentage = config::kInitialBattery;
-        u32 drone_id = 1U;
-    };
+struct DroneState {
+  DroneVelocity velocity;
+  double battery_percentage = config::kInitialBattery;
+  int drone_id = 1;
+};
 
-    class Drone
-    {
-    public:
-        Drone() = default;
-        void HandleCommand(const drone_protocol::VelocityChangeCommand &command);
-        void Update(f64 delta_time);
-        const DroneState &GetState() const;
+class Drone {
+ public:
+  void HandleCommand(const drone_protocol::VelocityChangeCommand& command);
+  void Update(double delta_time);
+  const DroneState& GetState() const;
 
-    private:
-        DroneState state_{};
-    };
+ private:
+  DroneState state_;
+};
 
 }
 

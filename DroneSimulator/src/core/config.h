@@ -1,55 +1,54 @@
 #ifndef DRONE_SIMULATOR_CORE_CONFIG_H_
 #define DRONE_SIMULATOR_CORE_CONFIG_H_
 
+#include <cstddef>
+#include <cstdint>
 #include <string_view>
 
-#include "core/types.h"
+namespace drone_simulator::config {
 
-namespace drone_simulator::config
-{
-    // World
-    constexpr f64 kWidth = 1000.0;
-    constexpr f64 kHeight = 1000.0;
+// World
+inline constexpr double kWidth = 1000.0;
+inline constexpr double kHeight = 1000.0;
 
-    // Simulation loop
-    constexpr f64 kUpdateRateHz = 50.0;
-    constexpr f64 kTickPeriodS = 1.0 / kUpdateRateHz;
-    constexpr f64 kStatusPrintIntervalS = 3.0;
-    constexpr i32 kStatusPrintPrecision = 2;
-    constexpr f64 kBytesPerKiB = 1024.0;
+// Simulation loop
+inline constexpr double kUpdateRateHz = 50.0;
+inline constexpr double kTickPeriodS = 1.0 / kUpdateRateHz;
+inline constexpr double kStatusPrintIntervalS = 3.0;
+inline constexpr int kStatusPrintPrecision = 2;
+inline constexpr double kBytesPerKiB = 1024.0;
 
-    // Drone
-    constexpr f64 kMaxCommandVelocity = 1.0;
-    constexpr f64 kMaxSpeed = 10.0;
-    constexpr f64 kMaxBattery = 100.0;
-    constexpr f64 kInitialBatteryFraction = 0.687;
-    constexpr f64 kInitialBattery = kMaxBattery * kInitialBatteryFraction;
-    constexpr u32 kBatteryLifetimeS = 1200;
-    constexpr f64 kBatteryDrainPerS = kMaxBattery / kBatteryLifetimeS;
+// Drone
+inline constexpr double kMaxCommandVelocity = 1.0;
+inline constexpr double kMaxSpeed = 10.0;
+inline constexpr double kMaxBattery = 100.0;
+inline constexpr double kInitialBatteryFraction = 0.687;
+inline constexpr double kInitialBattery = kMaxBattery * kInitialBatteryFraction;
+inline constexpr double kBatteryLifetimeS = 1200.0;
+inline constexpr double kBatteryDrainPerS = kMaxBattery / kBatteryLifetimeS;
 
-    // Video
-    constexpr i32 kFrameWidthPx = 640;
-    constexpr i32 kFrameHeightPx = 640;
-    constexpr f64 kPixelsPerMeter = 10.0;
-    constexpr f64 kBlockSizeM = 50.0;
-    constexpr f64 kRoadWidthM = 8.0;
-    // Video - Stream
-    constexpr f64 kVideoFps = 25.0;
-    constexpr i32 kJpegQuality = 70;
-    constexpr u32 kTicksPerFrame = static_cast<u32>(kUpdateRateHz / kVideoFps);
-    static_assert(kTicksPerFrame * kVideoFps == kUpdateRateHz,
-                  "kUpdateRateHz must be a whole multiple of kVideoFps");
-    // Video - Debug
-    constexpr f64 kDroneSizeM = 2.0;
-    constexpr i32 kDroneCenterRadiusPx = 3;
-    constexpr b8 kShowPreview = true;
-    constexpr i32 kPreviewWaitMs = 1;
+// Video
+inline constexpr int kFrameWidthPx = 640;
+inline constexpr int kFrameHeightPx = 640;
+inline constexpr double kPixelsPerMeter = 10.0;
+inline constexpr double kBlockSizeM = 50.0;
+inline constexpr double kRoadWidthM = 8.0;
+// Video - Stream
+inline constexpr int kTicksPerFrame = 2;
+inline constexpr double kVideoFps = kUpdateRateHz / kTicksPerFrame;
+inline constexpr int kJpegQuality = 70;
+// Video - Debug
+inline constexpr double kDroneSizeM = 2.0;
+inline constexpr int kDroneCenterRadiusPx = 3;
+inline constexpr bool kShowPreview = true;
+inline constexpr int kPreviewWaitMs = 1;
 
-    // Network
-    constexpr u16 kCommandPort = 5600;
-    constexpr std::string_view kGcsAddress = "127.0.0.1";
-    constexpr u16 kVideoPort = 5602;
-    constexpr u16 kMtuSize = 1500;
+// Network
+inline constexpr uint16_t kCommandPort = 5600;
+inline constexpr std::string_view kGcsAddress = "127.0.0.1";
+inline constexpr uint16_t kVideoPort = 5602;
+inline constexpr size_t kMtuSize = 1500;
+
 }
 
 #endif

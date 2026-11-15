@@ -1,52 +1,48 @@
 #ifndef DRONE_SIMULATOR_NETWORK_UDP_SOCKET_H_
 #define DRONE_SIMULATOR_NETWORK_UDP_SOCKET_H_
 
+#include <cstddef>
+#include <cstdint>
 #include <span>
 
-#include "core/types.h"
+namespace drone_simulator::network {
 
-namespace drone_simulator::network
-{
+enum class ReceiveStatus {
+  kData,
+  kWouldBlock,
+  kError,  // error_code holds errno
+};
 
-    enum class ReceiveStatus
-    {
-        kData,
-        kWouldBlock,
-        kError, // error_code holds errno
-    };
+struct ReceiveResult {
+  ReceiveStatus status = ReceiveStatus::kError;
+  size_t bytes = 0;
+  int error_code = 0;
+};
 
-    struct ReceiveResult
-    {
-        ReceiveStatus status = ReceiveStatus::kError;
-        u64 bytes = 0;
-        i32 error_code = 0;
-    };
+class UdpSocket {
+ public:
+  UdpSocket();
+  ~UdpSocket();
 
-    class UdpSocket
-    {
-    public:
-        UdpSocket();
-        ~UdpSocket();
+  UdpSocket(const UdpSocket&) = delete;
+  UdpSocket& operator=(const UdpSocket&) = delete;
 
-        UdpSocket(const UdpSocket &) = delete;
-        UdpSocket &operator=(const UdpSocket &) = delete;
+  UdpSocket(UdpSocket&& other) noexcept;
+  UdpSocket& operator=(UdpSocket&& other) noexcept;
 
-        UdpSocket(UdpSocket &&other) noexcept;
-        UdpSocket &operator=(UdpSocket &&other) noexcept;
+  bool IsOpen() const;
+  [[nodiscard]] bool Bind(uint16_t port);
+  [[nodiscard]] bool SetNonBlocking();
 
-        b8 IsOpen() const;
-        [[nodiscard]] b8 Bind(u16 port);
-        [[nodiscard]] b8 SetNonBlocking();
+  [[nodiscard]] ReceiveResult Receive(std::span<uint8_t> buffer);
 
-        [[nodiscard]] ReceiveResult Receive(std::span<byte_t> buffer);
+ private:
+  static constexpr int kInvalidFd = -1;
 
-    private:
-        static constexpr i32 kInvalidFd = -1;
+  void Close();
 
-        void Close_();
-
-        i32 fd_ = kInvalidFd;
-    };
+  int fd_ = kInvalidFd;
+};
 
 }
 

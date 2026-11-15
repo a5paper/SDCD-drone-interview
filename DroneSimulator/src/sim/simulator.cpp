@@ -1,14 +1,21 @@
 #include "sim/simulator.h"
 
-namespace drone_simulator
-{
+namespace drone_simulator {
 
-    void Simulator::Update(f64 delta_time)
-    {
-        drone.Update(delta_time);
+void Simulator::HandleCommand(
+    const drone_protocol::VelocityChangeCommand& command) {
+  drone_.HandleCommand(command);
+}
 
-        const auto &drone_velocity = drone.GetState().velocity;
-        world.Update(drone_velocity.x, drone_velocity.y, delta_time);
-    }
+void Simulator::Update(double delta_time) {
+  drone_.Update(delta_time);
+
+  const drone::DroneVelocity& velocity = drone_.GetState().velocity;
+  world_.Update(velocity.x, velocity.y, delta_time);
+}
+
+const drone::Drone& Simulator::GetDrone() const { return drone_; }
+
+const world::World& Simulator::GetWorld() const { return world_; }
 
 }

@@ -11,12 +11,18 @@
 - Terminal: `gdb ./build/DroneSimulator/DroneSimulator`, e.g. `break drone_simulator::drone::Drone::HandleCommand`, then `run`.
 - VS Code: install the C/C++ extension (`ms-vscode.cpptools`) and press F5. `.vscode/launch.json` builds with the "build (Debug)" task first.
 
+## Code style
+C++ follows the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html).
+- Format: `clang-format -i $(find DroneSimulator/src -name '*.h' -o -name '*.cpp')` (config in `.clang-format`).
+- Lint: `cpplint --recursive DroneSimulator/src` (config in `DroneSimulator/CPPLINT.cfg`).
+- Both tools install with `pip install clang-format cpplint` (in a venv on Ubuntu 24).
+
 ## Project layout
 ```
 protocols/                 protobuf messages (drone_protocol library)
 DroneSimulator/src/
   main.cpp                 main loop: receive, update, render, status
-  core/                    config.h (all constants), types.h (type aliases)
+  core/                    config.h (all constants)
   sim/                     drone, world, simulator step (drone_sim library)
   render/                  top-down renderer, JPEG encoding (drone_render library)
   network/                 UDP socket, command receiver (drone_network library)

@@ -3,35 +3,32 @@
 #include <cstring>
 #include <iostream>
 
-namespace drone_simulator::network
-{
+namespace drone_simulator::network {
 
-    b8 CommandReceiver::Open(u16 port)
-    {
-        return socket_.Bind(port) && socket_.SetNonBlocking();
+bool CommandReceiver::Open(uint16_t port) {
+  return socket_.Bind(port) && socket_.SetNonBlocking();
+}
+
+std::optional<drone_protocol::VelocityChangeCommand> CommandReceiver::Poll() {
+  std::optional<drone_protocol::VelocityChangeCommand> latest;
+
+  ReceiveResult result;
+  while ((result = socket_.Receive(buffer_)).status !=
+         ReceiveStatus::kWouldBlock) {
+    if (result.status == ReceiveStatus::kError) {
+      std::cerr << "Receive failed: " << std::strerror(result.error_code)
+                << std::endl;
+      break;
     }
 
-    std::optional<drone_protocol::VelocityChangeCommand> CommandReceiver::Poll()
-    {
-        std::optional<drone_protocol::VelocityChangeCommand> latest;
-
-        ReceiveResult result;
-        while ((result = socket_.Receive(buffer_)).status != ReceiveStatus::kWouldBlock)
-        {
-            if (result.status == ReceiveStatus::kError)
-            {
-                std::cerr << "Receive failed: " << std::strerror(result.error_code) << std::endl;
-                break;
-            }
-
-            drone_protocol::VelocityChangeCommand command;
-            if (command.ParseFromArray(buffer_.data(), static_cast<i32>(result.bytes)))
-            {
-                latest = command;
-            }
-        }
-
-        return latest;
+    drone_protocol::VelocityChangeCommand command;
+    if (command.ParseFromArray(buffer_.data(),
+                               static_cast<int>(result.bytes))) {
+      latest = command;
     }
+  }
+
+  return latest;
+}
 
 }

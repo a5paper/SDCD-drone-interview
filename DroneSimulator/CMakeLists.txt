@@ -1,6 +1,6 @@
 add_compile_options(-Wall -Wextra -Wpedantic $<$<CONFIG:Debug>:-g3>)
 
-# core: config and type aliases (header-only)
+# core: config constants (header-only)
 add_library(drone_core INTERFACE)
 target_include_directories(drone_core INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/src)
 

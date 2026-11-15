@@ -1,8 +1,18 @@
-BasedOnStyle: Microsoft
-IndentWidth: 4
-ColumnLimit: 100
-NamespaceIndentation: All
-PointerAlignment: Right
-ReferenceAlignment: Right
-AccessModifierOffset: -4
-IncludeBlocks: Preserve
+BasedOnStyle: Google
+DerivePointerAlignment: false
+PointerAlignment: Left
+IncludeBlocks: Regroup
+IncludeCategories:
+  # C system headers
+  - Regex: '^<.*\.h>$'
+    Priority: 1
+  # C++ standard library
+  - Regex: '^<[a-z_]+>$'
+    Priority: 2
+  # Other libraries
+  - Regex: '^<.*>$'
+    Priority: 3
+  # Project headers
+  - Regex: '.*'
+    Priority: 4
+FixNamespaceComments: false

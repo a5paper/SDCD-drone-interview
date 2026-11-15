@@ -4,23 +4,20 @@
 
 #include "core/config.h"
 
-namespace drone_simulator::world
-{
+namespace drone_simulator::world {
 
-    void World::Update(f64 velocity_x, f64 velocity_y, f64 delta_time)
-    {
-        if (delta_time <= 0.0)
-        {
-            return;
-        }
+void World::Update(double velocity_x, double velocity_y, double delta_time) {
+  if (delta_time <= 0.0) {
+    return;
+  }
 
-        state.drone_position_x += velocity_x * delta_time;
-        state.drone_position_y += velocity_y * delta_time;
+  state_.drone_position_x = std::clamp(
+      state_.drone_position_x + velocity_x * delta_time, 0.0, config::kWidth);
+  state_.drone_position_y = std::clamp(
+      state_.drone_position_y + velocity_y * delta_time, 0.0, config::kHeight);
+  state_.elapsed_time += delta_time;
+}
 
-        state.drone_position_x = std::clamp(state.drone_position_x, 0.0, config::kWidth);
-        state.drone_position_y = std::clamp(state.drone_position_y, 0.0, config::kHeight);
-
-        state.elapsed_time += delta_time;
-    }
+const WorldState& World::GetState() const { return state_; }
 
 }

@@ -9,7 +9,7 @@ protobuf_generate(
 )
 
 target_include_directories(drone_protocol SYSTEM PUBLIC
-    ${CMAKE_CURRENT_BINARY_DIR}
+    ${PROJECT_BINARY_DIR}
 )
 
 target_link_libraries(drone_protocol PUBLIC
