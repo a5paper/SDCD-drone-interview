@@ -2,8 +2,13 @@ syntax = "proto3";
 
 package drone_protocol;
 
-// One UDP datagram of a JPEG frame. chunk_index == chunk_count marks the XOR
-// parity chunk.
+enum FecScheme {
+  FEC_SCHEME_NONE = 0;
+  FEC_SCHEME_XOR = 1;
+}
+
+// One UDP datagram of a JPEG frame. chunk_index >= chunk_count marks a parity
+// chunk: parity chunk chunk_count + g protects data group g.
 message VideoChunk {
   uint64 frame_id = 1;
   uint32 chunk_index = 2;
@@ -11,4 +16,6 @@ message VideoChunk {
   uint32 frame_size = 4;
   bytes payload = 5;
   double timestamp_s = 6;
+  FecScheme fec_scheme = 7;
+  uint32 fec_group_size = 8;
 }

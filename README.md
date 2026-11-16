@@ -29,7 +29,8 @@ DroneSimulator/src/
   timing/                  LoopClock and IntervalTimer (with config/: drone_core library)
   sim/                     drone, world, road grid, simulator step (drone_sim library)
   render/                  top-down renderer, JPEG encoding (drone_render library)
-  network/                 UDP socket, command receiver, message sender, video streamer
+  network/                 UDP socket, command receiver, message sender, video streamer,
+                           FEC strategies
                            (drone_network library)
 ```
 

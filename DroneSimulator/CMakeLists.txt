@@ -28,6 +28,7 @@ add_library(drone_network STATIC
     src/network/command_receiver.cpp
     src/network/video_streamer.cpp
     src/network/message_sender.cpp
+    src/network/fec.cpp
 )
 
 target_link_libraries(drone_network PUBLIC drone_core drone_protocol)

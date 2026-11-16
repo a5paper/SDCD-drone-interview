@@ -53,11 +53,11 @@ void PrintStatus(const Simulator& simulator,
                  const network::VideoStreamer& streamer,
                  const network::MessageSender& telemetry_sender,
                  timing::LoopClock::Clock::duration uptime) {
-  const world::WorldState& world = simulator.GetWorld().GetState();
+  const world::WorldState& world_state = simulator.GetWorld().GetState();
   const double jpeg_kib = renderer.GetJpeg().size() / config::kBytesPerKiB;
 
-  std::cout << "Position X: " << world.drone_position_x << " m\n"
-            << "Position Y: " << world.drone_position_y << " m\n"
+  std::cout << "Position X: " << world_state.drone_position_x << " m\n"
+            << "Position Y: " << world_state.drone_position_y << " m\n"
             << "Battery: " << simulator.GetDrone().GetState().battery_percentage
             << " %\n"
             << "JPEG: " << jpeg_kib << " KiB (" << jpeg_kib * config::kVideoFps
@@ -78,32 +78,31 @@ void ShowPreview(const std::vector<uint8_t>& jpeg) {
   cv::waitKey(config::kPreviewWaitMs);
 }
 
-}
-
-int Run(const config::NetworkConfig& network) {
+int Run(const config::NetworkConfig& settings) {
   network::CommandReceiver receiver;
-  if (!ReportOpen(receiver.Open(network.command_port), "command")) {
+  if (!ReportOpen(receiver.Open(settings.command_port), "command")) {
     return EXIT_FAILURE;
   }
-  std::cout << "Listening for commands on UDP " << network.command_port
+  std::cout << "Listening for commands on UDP " << settings.command_port
             << std::endl;
 
-  network::VideoStreamer streamer;
-  if (!ReportOpen(streamer.Open(network.gcs_address, network.video_port),
+  network::VideoStreamer streamer(
+      network::MakeFecStrategy(settings.fec_scheme, settings.fec_group_size));
+  if (!ReportOpen(streamer.Open(settings.gcs_address, settings.video_port),
                   "video")) {
     return EXIT_FAILURE;
   }
-  std::cout << "Streaming video to " << network.gcs_address << ":"
-            << network.video_port << std::endl;
+  std::cout << "Streaming video to " << settings.gcs_address << ":"
+            << settings.video_port << std::endl;
 
   network::MessageSender telemetry_sender;
   if (!ReportOpen(
-          telemetry_sender.Open(network.gcs_address, network.telemetry_port),
+          telemetry_sender.Open(settings.gcs_address, settings.telemetry_port),
           "telemetry")) {
     return EXIT_FAILURE;
   }
-  std::cout << "Sending telemetry to " << network.gcs_address << ":"
-            << network.telemetry_port << std::endl;
+  std::cout << "Sending telemetry to " << settings.gcs_address << ":"
+            << settings.telemetry_port << std::endl;
 
   Simulator simulator;
   render::JpegRenderer renderer;
@@ -147,6 +146,7 @@ int Run(const config::NetworkConfig& network) {
 }
 
 }
+}
 
 int main(int argc, char** argv) {
   std::string config_path = DRONE_SIMULATOR_DEFAULT_CONFIG;
@@ -157,10 +157,10 @@ int main(int argc, char** argv) {
     return EXIT_FAILURE;
   }
 
-  const std::optional<drone_simulator::config::NetworkConfig> network =
+  const std::optional<drone_simulator::config::NetworkConfig> settings =
       drone_simulator::config::LoadNetworkConfig(config_path);
-  if (!network) {
+  if (!settings) {
     return EXIT_FAILURE;
   }
-  return drone_simulator::Run(*network);
+  return drone_simulator::Run(*settings);
 }
