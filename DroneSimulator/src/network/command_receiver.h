@@ -19,7 +19,7 @@ class CommandReceiver {
 
  private:
   UdpSocket socket_;
-  std::array<uint8_t, config::kMtuSize> buffer_{};
+  std::array<uint8_t, config::kMtuBytes> buffer_{};
 };
 
 }

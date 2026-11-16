@@ -25,6 +25,7 @@ void Drone::HandleCommand(
   if (!IsCommandValid(command)) {
     return;
   }
+  state_.last_command = command;
 
   // The command's length is the fraction of max speed, capped at 1 so
   // diagonals are not faster than straight lines.
@@ -32,16 +33,14 @@ void Drone::HandleCommand(
 
   if (length == 0.0) {
     state_.direction = {};
-    state_.speed = 0.0;
+    state_.speed_mps = 0.0;
     return;
   }
 
   state_.direction = {command.velocity_x() / length,
                       command.velocity_y() / length};
-  state_.speed =
-      std::min(length, config::kMaxCommandVelocity) * config::kMaxSpeed;
-
-  state_.last_command.CopyFrom(command);
+  state_.speed_mps =
+      std::min(length, config::kMaxCommandVelocity) * config::kMaxSpeedMps;
 }
 
 void Drone::Update(double delta_time) {
@@ -49,19 +48,19 @@ void Drone::Update(double delta_time) {
     return;
   }
 
-  // Handle Battery
   state_.battery_percentage -= delta_time * config::kBatteryDrainPerS;
 
   if (state_.battery_percentage <= 0.0) {
     state_.battery_percentage = 0.0;
-    state_.speed = 0.0;
+    state_.speed_mps = 0.0;
   }
 }
 
 const DroneState& Drone::GetState() const { return state_; }
 
 Vector2 Drone::GetVelocity() const {
-  return {state_.direction.x * state_.speed, state_.direction.y * state_.speed};
+  return {state_.direction.x * state_.speed_mps,
+          state_.direction.y * state_.speed_mps};
 }
 
 }

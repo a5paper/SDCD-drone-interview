@@ -1,19 +1,20 @@
-#ifndef DRONE_SIMULATOR_NETWORK_TELEMETRY_SENDER_H_
-#define DRONE_SIMULATOR_NETWORK_TELEMETRY_SENDER_H_
+#ifndef DRONE_SIMULATOR_NETWORK_MESSAGE_SENDER_H_
+#define DRONE_SIMULATOR_NETWORK_MESSAGE_SENDER_H_
+
+#include <google/protobuf/message_lite.h>
 
 #include <cstdint>
 #include <string>
 #include <string_view>
 
 #include "network/udp_socket.h"
-#include "protocols/telemetry.pb.h"
 
 namespace drone_simulator::network {
 
-class TelemetrySender {
+class MessageSender {
  public:
   [[nodiscard]] bool Open(std::string_view address, uint16_t port);
-  void Send(const drone_protocol::Telemetry& telemetry);
+  void Send(const google::protobuf::MessageLite& message);
   uint64_t GetFailedSends() const;
 
  private:

@@ -16,9 +16,9 @@ struct CarPool {
 };
 
 struct WorldState {
-  double drone_position_x = config::kWidth / 2;
-  double drone_position_y = config::kHeight / 2;
-  double elapsed_time = 0.0;
+  double drone_position_x = config::kWorldWidthM / 2;
+  double drone_position_y = config::kWorldHeightM / 2;
+  double elapsed_time_s = 0.0;
   CarPool cars_along_x;
   CarPool cars_along_y;
 };

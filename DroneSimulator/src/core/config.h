@@ -7,8 +7,8 @@
 namespace drone_simulator::config {
 
 // World
-inline constexpr double kWidth = 1000.0;
-inline constexpr double kHeight = 1000.0;
+inline constexpr double kWorldWidthM = 1000.0;
+inline constexpr double kWorldHeightM = 1000.0;
 inline constexpr uint32_t kRandomSeed = 42;
 // World - Buildings (placed per block, inside the roads)
 inline constexpr uint8_t kBuildingsPerBlock = 2;
@@ -31,13 +31,12 @@ inline constexpr int kStatusPrintPrecision = 2;
 inline constexpr double kBytesPerKiB = 1024.0;
 
 // Drone
-inline constexpr double kMaxCommandVelocity = 1;
-inline constexpr double kMaxSpeed = 10.0;
-inline constexpr double kMaxBattery = 100.0;
-inline constexpr double kInitialBatteryFraction = 0.687;
-inline constexpr double kInitialBattery = kMaxBattery * kInitialBatteryFraction;
-inline constexpr double kBatteryLifetimeS = 1200.0;
-inline constexpr double kBatteryDrainPerS = kMaxBattery / kBatteryLifetimeS;
+inline constexpr double kMaxCommandVelocity = 1.0;
+inline constexpr double kMaxSpeedMps = 10.0;
+inline constexpr double kMaxBatteryPercent = 100.0;
+inline constexpr double kInitialBatteryPercent = 68.7;
+inline constexpr double kBatteryLifeS = 1200.0;
+inline constexpr double kBatteryDrainPerS = kMaxBatteryPercent / kBatteryLifeS;
 
 // Video
 inline constexpr int kFrameWidthPx = 640;
@@ -58,11 +57,12 @@ inline constexpr int kPreviewWaitMs = 1;
 
 // Telemetry
 inline constexpr double kTelemetryRateHz = 10.0;
-inline constexpr uint8_t kTicksPerTelemetry =  kUpdateRateHz / kTelemetryRateHz;
+inline constexpr uint8_t kTicksPerTelemetry = kUpdateRateHz / kTelemetryRateHz;
+static_assert(kTicksPerTelemetry * kTelemetryRateHz == kUpdateRateHz);
 
 // Network
-inline constexpr size_t kMtuSize = 1500;
-inline constexpr size_t kMaxChunkPayload = 1400;
+inline constexpr size_t kMtuBytes = 1500;
+inline constexpr size_t kMaxChunkPayloadBytes = 1400;
 
 }
 

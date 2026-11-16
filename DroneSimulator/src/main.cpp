@@ -1,5 +1,4 @@
 #include <cerrno>
-#include <chrono>
 #include <cstdint>
 #include <cstdlib>
 #include <cstring>
@@ -9,31 +8,51 @@
 #include <optional>
 #include <string>
 #include <string_view>
-#include <thread>
 #include <vector>
 
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 
 #include "core/config.h"
+#include "core/loop_clock.h"
 #include "core/network_config.h"
 #include "network/command_receiver.h"
-#include "network/telemetry_sender.h"
+#include "network/message_sender.h"
 #include "network/video_streamer.h"
+#include "protocols/telemetry.pb.h"
 #include "render/jpeg_renderer.h"
 #include "sim/simulator.h"
 
 namespace drone_simulator {
 namespace {
 
-using Clock = std::chrono::steady_clock;
-using Seconds = std::chrono::duration<double>;
+bool ReportOpen(bool opened, std::string_view socket_name) {
+  if (!opened) {
+    std::cerr << "Failed to open " << socket_name
+              << " socket: " << std::strerror(errno) << std::endl;
+  }
+  return opened;
+}
+
+drone_protocol::Telemetry MakeTelemetry(const Simulator& simulator,
+                                        uint64_t sequence, uint64_t frame_id) {
+  const drone::DroneState& drone_state = simulator.GetDrone().GetState();
+
+  drone_protocol::Telemetry telemetry;
+  telemetry.set_sequence(sequence);
+  telemetry.set_timestamp_s(simulator.GetWorld().GetState().elapsed_time_s);
+  telemetry.set_frame_id(frame_id);
+  telemetry.set_speed_mps(drone_state.speed_mps);
+  telemetry.set_battery_percentage(drone_state.battery_percentage);
+  *telemetry.mutable_last_command() = drone_state.last_command;
+  return telemetry;
+}
 
 void PrintStatus(const Simulator& simulator,
                  const render::JpegRenderer& renderer,
                  const network::VideoStreamer& streamer,
-                 const network::TelemetrySender& telemetry_sender,
-                 Clock::duration uptime) {
+                 const network::MessageSender& telemetry_sender,
+                 timing::LoopClock::Clock::duration uptime) {
   const world::WorldState& world = simulator.GetWorld().GetState();
   const double jpeg_kib = renderer.GetJpeg().size() / config::kBytesPerKiB;
 
@@ -63,88 +82,66 @@ void ShowPreview(const std::vector<uint8_t>& jpeg) {
 
 int Run(const config::NetworkConfig& network) {
   network::CommandReceiver receiver;
-  if (!receiver.Open(network.command_port)) {
-    std::cerr << "Failed to open command socket: " << std::strerror(errno)
-              << std::endl;
+  if (!ReportOpen(receiver.Open(network.command_port), "command")) {
     return EXIT_FAILURE;
   }
   std::cout << "Listening for commands on UDP " << network.command_port
             << std::endl;
 
   network::VideoStreamer streamer;
-  if (!streamer.Open(network.gcs_address, network.video_port)) {
-    std::cerr << "Failed to open video socket: " << std::strerror(errno)
-              << std::endl;
+  if (!ReportOpen(streamer.Open(network.gcs_address, network.video_port),
+                  "video")) {
     return EXIT_FAILURE;
   }
-
-  network::TelemetrySender telemetrySender;
-  if (!telemetrySender.Open(network.gcs_address, network.telemetry_port)) {
-    std::cerr << "Failed to open telemetry socket: " << std::strerror(errno)
-              << std::endl;
-    return EXIT_FAILURE;
-  }
-
   std::cout << "Streaming video to " << network.gcs_address << ":"
             << network.video_port << std::endl;
 
+  network::MessageSender telemetry_sender;
+  if (!ReportOpen(
+          telemetry_sender.Open(network.gcs_address, network.telemetry_port),
+          "telemetry")) {
+    return EXIT_FAILURE;
+  }
+  std::cout << "Sending telemetry to " << network.gcs_address << ":"
+            << network.telemetry_port << std::endl;
+
   Simulator simulator;
   render::JpegRenderer renderer;
-
-  uint64_t frame_id = 0;
-
-  drone_protocol::Telemetry telemetry;
-  uint64_t telemetry_id = 0;
+  uint64_t next_frame_id = 0;
+  uint64_t next_telemetry_sequence = 0;
 
   std::cout << std::fixed << std::setprecision(config::kStatusPrintPrecision);
   std::cout << "Drone Simulator starting..." << std::endl;
 
-  const auto tick_duration = std::chrono::duration_cast<Clock::duration>(
-      Seconds(config::kTickPeriodS));
-  const Clock::time_point start_time = Clock::now();
-  Clock::time_point previous_time = start_time;
-  double status_print_timer = 0.0;
+  timing::LoopClock clock(config::kTickPeriodS);
+  timing::IntervalTimer status_timer(config::kStatusPrintIntervalS);
 
   for (int64_t tick = 0;; ++tick) {
-    const Clock::time_point current_time = Clock::now();
-    const double delta_time = Seconds(current_time - previous_time).count();
-    previous_time = current_time;
+    const double delta_time_s = clock.Tick();
 
     if (const auto command = receiver.Poll()) {
       simulator.HandleCommand(*command);
     }
 
-    simulator.Update(delta_time);
+    simulator.Update(delta_time_s);
 
     if (tick % config::kTicksPerFrame == 0) {
       renderer.Render(simulator.GetWorld().GetState());
-      streamer.Send(renderer.GetJpeg(), frame_id++);
+      streamer.Send(renderer.GetJpeg(), next_frame_id++);
       ShowPreview(renderer.GetJpeg());
     }
 
     if (tick % config::kTicksPerTelemetry == 0) {
-      telemetry.set_sequence(telemetry_id);
-      telemetry.set_timestamp_s(simulator.GetWorld().GetState().elapsed_time);
-      telemetry.set_frame_id(frame_id);
-
-      const auto& drone_state = simulator.GetDrone().GetState();
-      telemetry.set_speed_mps(drone_state.speed);
-      telemetry.set_battery_percentage(drone_state.battery_percentage);
-      // Copies message into telemetry
-      *telemetry.mutable_last_command() = drone_state.last_command;
-
-      telemetrySender.Send(telemetry);
-      ++telemetry_id;
+      telemetry_sender.Send(MakeTelemetry(simulator, next_telemetry_sequence++,
+                                          next_frame_id - 1));
     }
 
-    status_print_timer += delta_time;
-    if (status_print_timer >= config::kStatusPrintIntervalS) {
-      status_print_timer = 0.0;
-      PrintStatus(simulator, renderer, streamer, telemetrySender,
-                  current_time - start_time);
+    if (status_timer.Elapsed(delta_time_s)) {
+      PrintStatus(simulator, renderer, streamer, telemetry_sender,
+                  clock.GetUptime());
     }
 
-    std::this_thread::sleep_until(current_time + tick_duration);
+    clock.SleepUntilNextTick();
   }
 }
 

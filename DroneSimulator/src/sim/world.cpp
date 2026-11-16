@@ -41,9 +41,9 @@ void MoveCars(CarPool& pool, float road_length, float delta_time) {
 
 World::World() {
   std::mt19937 random(config::kRandomSeed);
-  FillLanes(state_.cars_along_x, config::kHeight, config::kWidth,
+  FillLanes(state_.cars_along_x, config::kWorldHeightM, config::kWorldWidthM,
             /*lane_sign=*/1.0, random);
-  FillLanes(state_.cars_along_y, config::kWidth, config::kHeight,
+  FillLanes(state_.cars_along_y, config::kWorldWidthM, config::kWorldHeightM,
             /*lane_sign=*/-1.0, random);
 }
 
@@ -52,15 +52,17 @@ void World::Update(double velocity_x, double velocity_y, double delta_time) {
     return;
   }
 
-  state_.drone_position_x = std::clamp(
-      state_.drone_position_x + velocity_x * delta_time, 0.0, config::kWidth);
-  state_.drone_position_y = std::clamp(
-      state_.drone_position_y + velocity_y * delta_time, 0.0, config::kHeight);
-  state_.elapsed_time += delta_time;
+  state_.drone_position_x =
+      std::clamp(state_.drone_position_x + velocity_x * delta_time, 0.0,
+                 config::kWorldWidthM);
+  state_.drone_position_y =
+      std::clamp(state_.drone_position_y + velocity_y * delta_time, 0.0,
+                 config::kWorldHeightM);
+  state_.elapsed_time_s += delta_time;
 
   const auto delta = static_cast<float>(delta_time);
-  MoveCars(state_.cars_along_x, config::kWidth, delta);
-  MoveCars(state_.cars_along_y, config::kHeight, delta);
+  MoveCars(state_.cars_along_x, config::kWorldWidthM, delta);
+  MoveCars(state_.cars_along_y, config::kWorldHeightM, delta);
 }
 
 const WorldState& World::GetState() const { return state_; }

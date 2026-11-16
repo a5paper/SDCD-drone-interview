@@ -15,8 +15,8 @@ struct Vector2 {
 
 struct DroneState {
   Vector2 direction;
-  double speed = 0.0;
-  double battery_percentage = config::kInitialBattery;
+  double speed_mps = 0.0;
+  double battery_percentage = config::kInitialBatteryPercent;
   uint32_t drone_id = 1;
 
   drone_protocol::VelocityChangeCommand last_command;

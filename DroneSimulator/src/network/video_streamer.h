@@ -3,10 +3,9 @@
 
 #include <cstdint>
 #include <span>
-#include <string>
 #include <string_view>
 
-#include "network/udp_socket.h"
+#include "network/message_sender.h"
 #include "protocols/video.pb.h"
 
 namespace drone_simulator::network {
@@ -18,10 +17,8 @@ class VideoStreamer {
   uint64_t GetFailedSends() const;
 
  private:
-  UdpSocket socket_;
+  MessageSender sender_;
   drone_protocol::VideoChunk chunk_;
-  std::string datagram_;
-  uint64_t failed_sends_ = 0;
 };
 
 }
