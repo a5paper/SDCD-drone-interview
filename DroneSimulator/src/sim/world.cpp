@@ -8,9 +8,6 @@
 namespace drone_simulator::world {
 namespace {
 
-// Fills both lanes of every road in `pool` with cars at random gaps. Roads are
-// kBlockSizeM apart over `across_size`. `lane_sign` puts each direction in its
-// right-hand lane. All cars in a lane share one speed, so gaps never shrink.
 void FillLanes(CarPool& pool, double across_size, float road_length,
                double lane_sign, std::mt19937& random) {
   std::uniform_real_distribution<float> gap(config::kCarMinGapM,
@@ -31,8 +28,7 @@ void FillLanes(CarPool& pool, double across_size, float road_length,
   }
 }
 
-// Branch-free so the compiler can vectorize it: a car that leaves one end of
-// the road comes back at the other.
+// Branch-free so the compiler can vectorize it
 void MoveCars(CarPool& pool, float road_length, float delta_time) {
   for (size_t i = 0; i < pool.along.size(); ++i) {
     float along = pool.along[i] + pool.velocity[i] * delta_time;

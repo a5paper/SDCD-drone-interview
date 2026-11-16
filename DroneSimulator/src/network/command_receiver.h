@@ -15,7 +15,6 @@ class CommandReceiver {
  public:
   [[nodiscard]] bool Open(uint16_t port);
 
-  // Drains every pending datagram and returns the last one that parsed.
   std::optional<drone_protocol::VelocityChangeCommand> Poll();
 
  private:
