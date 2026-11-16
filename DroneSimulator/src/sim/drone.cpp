@@ -9,13 +9,14 @@ namespace drone_simulator::drone {
 namespace {
 
 bool IsCommandValid(const drone_protocol::VelocityChangeCommand& command) {
-  if (!std::isfinite(command.velocity_x()) ||
-      !std::isfinite(command.velocity_y())) {
+  const double x = command.velocity_x();
+  const double y = command.velocity_y();
+  if (!std::isfinite(x) || !std::isfinite(y)) {
     return false;
   }
 
-  return std::abs(command.velocity_x()) <= config::kMaxCommandVelocity &&
-         std::abs(command.velocity_y()) <= config::kMaxCommandVelocity;
+  return std::abs(x) <= config::kMaxCommandVelocity &&
+         std::abs(y) <= config::kMaxCommandVelocity;
 }
 
 }

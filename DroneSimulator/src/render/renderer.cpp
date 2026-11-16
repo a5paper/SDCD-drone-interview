@@ -72,8 +72,9 @@ void Renderer::DrawBlockBuildings(int block_forward, int block_right) {
     const double right = world::RoadCenter(block_right) + kLotMin +
                          place(random) * (kLotSize - size_right);
     const auto gray = static_cast<uint8_t>(shade(random));
+    const cv::Scalar color(gray, gray, gray);
     DrawWorldRect(forward, forward + size_forward, right, right + size_right,
-                  cv::Scalar(gray, gray, gray));
+                  color);
   }
 }
 
@@ -121,8 +122,9 @@ void Renderer::DrawDrone(double drone_x, double drone_y) {
 
   DrawWorldRect(drone_x - radius, drone_x + radius, drone_y - radius,
                 drone_y + radius, body_color);
-  cv::circle(frame_, WorldToScreen(drone_x, drone_y),
-             config::kDroneCenterRadiusPx, center_color, cv::FILLED);
+  const cv::Point2d center = WorldToScreen(drone_x, drone_y);
+  cv::circle(frame_, center, config::kDroneCenterRadiusPx, center_color,
+             cv::FILLED);
 }
 
 cv::Point2d Renderer::WorldToScreen(double world_x, double world_y) const {
@@ -137,8 +139,9 @@ void Renderer::DrawWorldRect(double forward_min, double forward_max,
       right_max < view_.right_min || right_min > view_.right_max) {
     return;
   }
-  cv::rectangle(frame_, WorldToScreen(forward_max, right_min),
-                WorldToScreen(forward_min, right_max), color, cv::FILLED);
+  const cv::Point2d top_left = WorldToScreen(forward_max, right_min);
+  const cv::Point2d bottom_right = WorldToScreen(forward_min, right_max);
+  cv::rectangle(frame_, top_left, bottom_right, color, cv::FILLED);
 }
 
 }

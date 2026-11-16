@@ -22,8 +22,8 @@ std::optional<drone_protocol::VelocityChangeCommand> CommandReceiver::Poll() {
     }
 
     drone_protocol::VelocityChangeCommand command;
-    if (command.ParseFromArray(buffer_.data(),
-                               static_cast<int>(result.bytes))) {
+    const int size = static_cast<int>(result.bytes);
+    if (command.ParseFromArray(buffer_.data(), size)) {
       latest = command;
     }
   }

@@ -21,8 +21,8 @@ void VideoStreamer::Send(std::span<const uint8_t> jpeg, uint64_t frame_id,
   constexpr size_t kPayload = config::kMaxChunkPayloadBytes;
   chunks_.clear();
   for (size_t offset = 0; offset < jpeg.size(); offset += kPayload) {
-    chunks_.push_back(
-        jpeg.subspan(offset, std::min(kPayload, jpeg.size() - offset)));
+    const size_t size = std::min(kPayload, jpeg.size() - offset);
+    chunks_.push_back(jpeg.subspan(offset, size));
   }
 
   chunk_.set_frame_id(frame_id);

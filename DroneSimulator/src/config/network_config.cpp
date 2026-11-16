@@ -15,11 +15,11 @@ constexpr uint32_t kMaxFecGroupSize = 1024;
 
 std::optional<uint32_t> ParseNumber(const std::string& text, uint32_t min,
                                     uint32_t max) {
+  const char* first = text.data();
+  const char* last = first + text.size();
   uint32_t value = 0;
-  const auto [end, error] =
-      std::from_chars(text.data(), text.data() + text.size(), value);
-  if (error != std::errc() || end != text.data() + text.size() || value < min ||
-      value > max) {
+  const auto [end, error] = std::from_chars(first, last, value);
+  if (error != std::errc() || end != last || value < min || value > max) {
     return std::nullopt;
   }
   return value;

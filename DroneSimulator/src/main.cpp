@@ -5,9 +5,11 @@
 #include <format>
 #include <iomanip>
 #include <iostream>
+#include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 #include <opencv2/highgui.hpp>
@@ -86,19 +88,21 @@ int Run(const config::NetworkConfig& settings) {
   std::cout << "Listening for commands on UDP " << settings.command_port
             << std::endl;
 
-  network::VideoStreamer streamer(
-      network::MakeFecStrategy(settings.fec_scheme, settings.fec_group_size));
-  if (!ReportOpen(streamer.Open(settings.gcs_address, settings.video_port),
-                  "video")) {
+  std::unique_ptr<network::FecStrategy> fec =
+      network::MakeFecStrategy(settings.fec_scheme, settings.fec_group_size);
+  network::VideoStreamer streamer(std::move(fec));
+  const bool video_opened =
+      streamer.Open(settings.gcs_address, settings.video_port);
+  if (!ReportOpen(video_opened, "video")) {
     return EXIT_FAILURE;
   }
   std::cout << "Streaming video to " << settings.gcs_address << ":"
             << settings.video_port << std::endl;
 
   network::MessageSender telemetry_sender;
-  if (!ReportOpen(
-          telemetry_sender.Open(settings.gcs_address, settings.telemetry_port),
-          "telemetry")) {
+  const bool telemetry_opened =
+      telemetry_sender.Open(settings.gcs_address, settings.telemetry_port);
+  if (!ReportOpen(telemetry_opened, "telemetry")) {
     return EXIT_FAILURE;
   }
   std::cout << "Sending telemetry to " << settings.gcs_address << ":"
@@ -123,22 +127,24 @@ int Run(const config::NetworkConfig& settings) {
     }
 
     simulator.Update(delta_time_s);
+    const world::WorldState& world_state = simulator.GetWorld().GetState();
 
     if (tick % config::kTicksPerFrame == 0) {
-      renderer.Render(simulator.GetWorld().GetState());
-      streamer.Send(renderer.GetJpeg(), next_frame_id++,
-                    simulator.GetWorld().GetState().elapsed_time_s);
-      ShowPreview(renderer.GetJpeg());
+      renderer.Render(world_state);
+      const std::vector<uint8_t>& jpeg = renderer.GetJpeg();
+      streamer.Send(jpeg, next_frame_id++, world_state.elapsed_time_s);
+      ShowPreview(jpeg);
     }
 
     if (tick % config::kTicksPerTelemetry == 0) {
-      telemetry_sender.Send(MakeTelemetry(simulator, next_telemetry_sequence++,
-                                          next_frame_id - 1));
+      const drone_protocol::Telemetry telemetry = MakeTelemetry(
+          simulator, next_telemetry_sequence++, next_frame_id - 1);
+      telemetry_sender.Send(telemetry);
     }
 
     if (status_timer.Elapsed(delta_time_s)) {
-      PrintStatus(simulator, renderer, streamer, telemetry_sender,
-                  clock.GetUptime());
+      const timing::LoopClock::Clock::duration uptime = clock.GetUptime();
+      PrintStatus(simulator, renderer, streamer, telemetry_sender, uptime);
     }
 
     clock.SleepUntilNextTick();

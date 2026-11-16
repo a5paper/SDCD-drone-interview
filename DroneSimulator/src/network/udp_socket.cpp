@@ -64,8 +64,8 @@ bool UdpSocket::Connect(std::string_view address, uint16_t port) {
   sockaddr_in destination{};
   destination.sin_family = AF_INET;
   destination.sin_port = htons(port);
-  if (::inet_pton(AF_INET, std::string(address).c_str(),
-                  &destination.sin_addr) != 1) {
+  const std::string address_text(address);
+  if (::inet_pton(AF_INET, address_text.c_str(), &destination.sin_addr) != 1) {
     errno = EINVAL;
     return false;
   }
