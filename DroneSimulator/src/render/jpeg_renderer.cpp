@@ -4,7 +4,7 @@
 
 #include <opencv2/imgcodecs.hpp>
 
-#include "core/config.h"
+#include "config/config.h"
 
 namespace drone_simulator::render {
 

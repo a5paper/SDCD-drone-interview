@@ -7,19 +7,13 @@
 
 #include <opencv2/imgproc.hpp>
 
-#include "core/config.h"
+#include "config/config.h"
+#include "sim/road_grid.h"
 
 namespace drone_simulator::render {
 namespace {
 
-constexpr double kBlock = config::kBlockSizeM;
 constexpr double kHalfRoad = config::kRoadWidthM / 2.0;
-
-// Index of the block (or road) at or below `coordinate`. Roads run through
-// every multiple of kBlock; block k lies between roads k and k + 1.
-int FirstBlock(double coordinate) {
-  return static_cast<int>(std::floor(coordinate / kBlock));
-}
 
 }
 
@@ -45,10 +39,10 @@ const cv::Mat& Renderer::Render(const world::WorldState& state) {
 }
 
 void Renderer::DrawBuildings() {
-  for (int f = FirstBlock(view_.forward_min); f * kBlock <= view_.forward_max;
-       ++f) {
-    for (int r = FirstBlock(view_.right_min); r * kBlock <= view_.right_max;
-         ++r) {
+  for (int f = world::RoadAtOrBelow(view_.forward_min);
+       world::RoadCenter(f) <= view_.forward_max; ++f) {
+    for (int r = world::RoadAtOrBelow(view_.right_min);
+         world::RoadCenter(r) <= view_.right_max; ++r) {
       DrawBlockBuildings(f, r);
     }
   }
@@ -60,7 +54,7 @@ void Renderer::DrawBlockBuildings(int block_forward, int block_right) {
   const uint8_t min_shade = 150;
   const uint8_t max_shade = 210;
   constexpr double kLotMin = kHalfRoad + config::kBuildingMarginM;
-  constexpr double kLotSize = kBlock - 2 * kLotMin;
+  constexpr double kLotSize = config::kBlockSizeM - 2 * kLotMin;
 
   std::seed_seq seed{static_cast<uint32_t>(block_forward),
                      static_cast<uint32_t>(block_right), config::kRandomSeed};
@@ -73,9 +67,9 @@ void Renderer::DrawBlockBuildings(int block_forward, int block_right) {
   for (int i = 0; i < config::kBuildingsPerBlock; ++i) {
     const double size_forward = size(random);
     const double size_right = size(random);
-    const double forward = block_forward * kBlock + kLotMin +
+    const double forward = world::RoadCenter(block_forward) + kLotMin +
                            place(random) * (kLotSize - size_forward);
-    const double right = block_right * kBlock + kLotMin +
+    const double right = world::RoadCenter(block_right) + kLotMin +
                          place(random) * (kLotSize - size_right);
     const auto gray = static_cast<uint8_t>(shade(random));
     DrawWorldRect(forward, forward + size_forward, right, right + size_right,
@@ -86,15 +80,17 @@ void Renderer::DrawBlockBuildings(int block_forward, int block_right) {
 void Renderer::DrawRoads() {
   const cv::Scalar road_color(110, 110, 110);
 
-  for (int k = FirstBlock(view_.right_min);
-       k * kBlock - kHalfRoad <= view_.right_max; ++k) {
-    DrawWorldRect(view_.forward_min, view_.forward_max, k * kBlock - kHalfRoad,
-                  k * kBlock + kHalfRoad, road_color);
+  for (int k = world::RoadAtOrBelow(view_.right_min);
+       world::RoadCenter(k) - kHalfRoad <= view_.right_max; ++k) {
+    const double center = world::RoadCenter(k);
+    DrawWorldRect(view_.forward_min, view_.forward_max, center - kHalfRoad,
+                  center + kHalfRoad, road_color);
   }
-  for (int k = FirstBlock(view_.forward_min);
-       k * kBlock - kHalfRoad <= view_.forward_max; ++k) {
-    DrawWorldRect(k * kBlock - kHalfRoad, k * kBlock + kHalfRoad,
-                  view_.right_min, view_.right_max, road_color);
+  for (int k = world::RoadAtOrBelow(view_.forward_min);
+       world::RoadCenter(k) - kHalfRoad <= view_.forward_max; ++k) {
+    const double center = world::RoadCenter(k);
+    DrawWorldRect(center - kHalfRoad, center + kHalfRoad, view_.right_min,
+                  view_.right_max, road_color);
   }
 }
 

@@ -1,9 +1,9 @@
 add_compile_options(-Wall -Wextra -Wpedantic $<$<CONFIG:Debug>:-g3>)
 
 add_library(drone_core STATIC
-    src/core/ini_file.cpp
-    src/core/network_config.cpp
-    src/core/loop_clock.cpp
+    src/config/ini_file.cpp
+    src/config/network_config.cpp
+    src/timing/loop_clock.cpp
 )
 target_include_directories(drone_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 

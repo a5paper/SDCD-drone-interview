@@ -1,5 +1,5 @@
-#ifndef DRONE_SIMULATOR_CORE_CONFIG_H_
-#define DRONE_SIMULATOR_CORE_CONFIG_H_
+#ifndef DRONE_SIMULATOR_CONFIG_CONFIG_H_
+#define DRONE_SIMULATOR_CONFIG_CONFIG_H_
 
 #include <cstddef>
 #include <cstdint>
@@ -10,6 +10,10 @@ namespace drone_simulator::config {
 inline constexpr double kWorldWidthM = 1000.0;
 inline constexpr double kWorldHeightM = 1000.0;
 inline constexpr uint32_t kRandomSeed = 42;
+// World - Roads
+inline constexpr double kBlockSizeM = 50.0;
+inline constexpr double kRoadWidthM = 8.0;
+inline constexpr double kLaneOffsetM = kRoadWidthM / 4.0;
 // World - Buildings (placed per block, inside the roads)
 inline constexpr uint8_t kBuildingsPerBlock = 2;
 inline constexpr double kBuildingMarginM = 3.0;
@@ -42,9 +46,6 @@ inline constexpr double kBatteryDrainPerS = kMaxBatteryPercent / kBatteryLifeS;
 inline constexpr int kFrameWidthPx = 640;
 inline constexpr int kFrameHeightPx = 640;
 inline constexpr double kPixelsPerMeter = 10.0;
-inline constexpr double kBlockSizeM = 50.0;
-inline constexpr double kRoadWidthM = 8.0;
-inline constexpr double kLaneOffsetM = kRoadWidthM / 4.0;
 // Video - Stream
 inline constexpr uint8_t kTicksPerFrame = 2;
 inline constexpr double kVideoFps = kUpdateRateHz / kTicksPerFrame;

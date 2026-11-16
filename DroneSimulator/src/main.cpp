@@ -13,15 +13,15 @@
 #include <opencv2/highgui.hpp>
 #include <opencv2/imgcodecs.hpp>
 
-#include "core/config.h"
-#include "core/loop_clock.h"
-#include "core/network_config.h"
+#include "config/config.h"
+#include "config/network_config.h"
 #include "network/command_receiver.h"
 #include "network/message_sender.h"
 #include "network/video_streamer.h"
 #include "protocols/telemetry.pb.h"
 #include "render/jpeg_renderer.h"
 #include "sim/simulator.h"
+#include "timing/loop_clock.h"
 
 namespace drone_simulator {
 namespace {
@@ -127,7 +127,8 @@ int Run(const config::NetworkConfig& network) {
 
     if (tick % config::kTicksPerFrame == 0) {
       renderer.Render(simulator.GetWorld().GetState());
-      streamer.Send(renderer.GetJpeg(), next_frame_id++);
+      streamer.Send(renderer.GetJpeg(), next_frame_id++,
+                    simulator.GetWorld().GetState().elapsed_time_s);
       ShowPreview(renderer.GetJpeg());
     }
 

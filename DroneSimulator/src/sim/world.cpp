@@ -3,20 +3,21 @@
 #include <algorithm>
 #include <random>
 
-#include "core/config.h"
+#include "config/config.h"
+#include "sim/road_grid.h"
 
 namespace drone_simulator::world {
 namespace {
 
 void FillLanes(CarPool& pool, double across_size, float road_length,
-               double lane_sign, std::mt19937& random) {
+               bool along_x, std::mt19937& random) {
   std::uniform_real_distribution<float> gap(config::kCarMinGapM,
                                             config::kCarMaxGapM);
   std::uniform_int_distribution<int> color(0, config::kCarColorCount - 1);
-  for (double road = 0.0; road <= across_size; road += config::kBlockSizeM) {
+  for (int road = 0; RoadCenter(road) <= across_size; ++road) {
     for (const float direction : {-1.0f, 1.0f}) {
-      const auto lane = static_cast<float>(road + lane_sign * direction *
-                                                      config::kLaneOffsetM);
+      const auto lane =
+          static_cast<float>(LaneCenter(road, direction, along_x));
       for (float rear = gap(random); rear + config::kCarLengthM <= road_length;
            rear += config::kCarLengthM + gap(random)) {
         pool.along.push_back(rear + config::kCarLengthM / 2.0f);
@@ -42,9 +43,9 @@ void MoveCars(CarPool& pool, float road_length, float delta_time) {
 World::World() {
   std::mt19937 random(config::kRandomSeed);
   FillLanes(state_.cars_along_x, config::kWorldHeightM, config::kWorldWidthM,
-            /*lane_sign=*/1.0, random);
+            /*along_x=*/true, random);
   FillLanes(state_.cars_along_y, config::kWorldWidthM, config::kWorldHeightM,
-            /*lane_sign=*/-1.0, random);
+            /*along_x=*/false, random);
 }
 
 void World::Update(double velocity_x, double velocity_y, double delta_time) {

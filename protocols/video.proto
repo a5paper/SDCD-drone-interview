@@ -10,4 +10,5 @@ message VideoChunk {
   uint32 chunk_count = 3;
   uint32 frame_size = 4;
   bytes payload = 5;
+  double timestamp_s = 6;
 }

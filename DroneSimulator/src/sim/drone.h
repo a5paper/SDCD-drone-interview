@@ -3,7 +3,7 @@
 
 #include <cstdint>
 
-#include "core/config.h"
+#include "config/config.h"
 #include "protocols/commands.pb.h"
 
 namespace drone_simulator::drone {

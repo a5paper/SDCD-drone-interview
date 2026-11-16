@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <cmath>
 
-#include "core/config.h"
+#include "config/config.h"
 
 namespace drone_simulator::drone {
 namespace {

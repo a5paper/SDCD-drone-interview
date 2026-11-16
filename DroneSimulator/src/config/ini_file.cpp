@@ -1,4 +1,4 @@
-#include "core/ini_file.h"
+#include "config/ini_file.h"
 
 #include <fstream>
 #include <string>

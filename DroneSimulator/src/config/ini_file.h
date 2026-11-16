@@ -1,5 +1,5 @@
-#ifndef DRONE_SIMULATOR_CORE_INI_FILE_H_
-#define DRONE_SIMULATOR_CORE_INI_FILE_H_
+#ifndef DRONE_SIMULATOR_CONFIG_INI_FILE_H_
+#define DRONE_SIMULATOR_CONFIG_INI_FILE_H_
 
 #include <map>
 #include <optional>

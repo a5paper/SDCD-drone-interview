@@ -5,7 +5,7 @@
 #include <cstdint>
 #include <optional>
 
-#include "core/config.h"
+#include "config/config.h"
 #include "network/udp_socket.h"
 #include "protocols/commands.pb.h"
 

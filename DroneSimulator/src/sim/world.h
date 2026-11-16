@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "core/config.h"
+#include "config/config.h"
 
 namespace drone_simulator::world {
 

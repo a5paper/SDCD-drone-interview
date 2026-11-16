@@ -24,11 +24,13 @@ C++ follows the [Google C++ Style Guide](https://google.github.io/styleguide/cpp
 config/network.ini         addresses and ports
 protocols/                 protobuf messages (drone_protocol library)
 DroneSimulator/src/
-  main.cpp                 main loop: receive, update, render, status
-  core/                    config.h (all constants)
-  sim/                     drone, world, simulator step (drone_sim library)
+  main.cpp                 main loop: commands, update, video, telemetry, status
+  config/                  config.h (all constants), INI and network config loaders
+  timing/                  LoopClock and IntervalTimer (with config/: drone_core library)
+  sim/                     drone, world, road grid, simulator step (drone_sim library)
   render/                  top-down renderer, JPEG encoding (drone_render library)
-  network/                 UDP socket, command receiver (drone_network library)
+  network/                 UDP socket, command receiver, message sender, video streamer
+                           (drone_network library)
 ```
 
 ## Assumptions

@@ -1,10 +1,10 @@
-#include "core/network_config.h"
+#include "config/network_config.h"
 
 #include <charconv>
 #include <iostream>
 #include <string>
 
-#include "core/ini_file.h"
+#include "config/ini_file.h"
 
 namespace drone_simulator::config {
 namespace {

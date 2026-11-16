@@ -13,7 +13,8 @@ namespace drone_simulator::network {
 class VideoStreamer {
  public:
   [[nodiscard]] bool Open(std::string_view address, uint16_t port);
-  void Send(std::span<const uint8_t> jpeg, uint64_t frame_id);
+  void Send(std::span<const uint8_t> jpeg, uint64_t frame_id,
+            double timestamp_s);
   uint64_t GetFailedSends() const;
 
  private:
