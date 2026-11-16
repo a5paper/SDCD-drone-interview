@@ -18,6 +18,7 @@
 #include "core/config.h"
 #include "core/network_config.h"
 #include "network/command_receiver.h"
+#include "network/telemetry_sender.h"
 #include "network/video_streamer.h"
 #include "render/jpeg_renderer.h"
 #include "sim/simulator.h"
@@ -31,6 +32,7 @@ using Seconds = std::chrono::duration<double>;
 void PrintStatus(const Simulator& simulator,
                  const render::JpegRenderer& renderer,
                  const network::VideoStreamer& streamer,
+                 const network::TelemetrySender& telemetry_sender,
                  Clock::duration uptime) {
   const world::WorldState& world = simulator.GetWorld().GetState();
   const double jpeg_kib = renderer.GetJpeg().size() / config::kBytesPerKiB;
@@ -42,6 +44,8 @@ void PrintStatus(const Simulator& simulator,
             << "JPEG: " << jpeg_kib << " KiB (" << jpeg_kib * config::kVideoFps
             << " KiB/s)\n"
             << "Video send failures: " << streamer.GetFailedSends() << "\n"
+            << "Telemetry send failures: " << telemetry_sender.GetFailedSends()
+            << "\n"
             << "Time On: " << std::format("{:%T}", uptime) << "\n\n"
             << std::flush;
 }
@@ -73,12 +77,24 @@ int Run(const config::NetworkConfig& network) {
               << std::endl;
     return EXIT_FAILURE;
   }
+
+  network::TelemetrySender telemetrySender;
+  if (!telemetrySender.Open(network.gcs_address, network.telemetry_port)) {
+    std::cerr << "Failed to open telemetry socket: " << std::strerror(errno)
+              << std::endl;
+    return EXIT_FAILURE;
+  }
+
   std::cout << "Streaming video to " << network.gcs_address << ":"
             << network.video_port << std::endl;
 
   Simulator simulator;
   render::JpegRenderer renderer;
+
   uint64_t frame_id = 0;
+
+  drone_protocol::Telemetry telemetry;
+  uint64_t telemetry_id = 0;
 
   std::cout << std::fixed << std::setprecision(config::kStatusPrintPrecision);
   std::cout << "Drone Simulator starting..." << std::endl;
@@ -106,10 +122,26 @@ int Run(const config::NetworkConfig& network) {
       ShowPreview(renderer.GetJpeg());
     }
 
+    if (tick % config::kTicksPerTelemetry == 0) {
+      telemetry.set_sequence(telemetry_id);
+      telemetry.set_timestamp_s(simulator.GetWorld().GetState().elapsed_time);
+      telemetry.set_frame_id(frame_id);
+
+      const auto& drone_state = simulator.GetDrone().GetState();
+      telemetry.set_speed_mps(drone_state.speed);
+      telemetry.set_battery_percentage(drone_state.battery_percentage);
+      // Copies message into telemetry
+      *telemetry.mutable_last_command() = drone_state.last_command;
+
+      telemetrySender.Send(telemetry);
+      ++telemetry_id;
+    }
+
     status_print_timer += delta_time;
     if (status_print_timer >= config::kStatusPrintIntervalS) {
       status_print_timer = 0.0;
-      PrintStatus(simulator, renderer, streamer, current_time - start_time);
+      PrintStatus(simulator, renderer, streamer, telemetrySender,
+                  current_time - start_time);
     }
 
     std::this_thread::sleep_until(current_time + tick_duration);

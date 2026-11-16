@@ -14,10 +14,12 @@ struct Vector2 {
 };
 
 struct DroneState {
-  Vector2 direction;   // Unit length, or zero when stopped.
-  double speed = 0.0;  // m/s, in [0, kMaxSpeed].
+  Vector2 direction;
+  double speed = 0.0;
   double battery_percentage = config::kInitialBattery;
   uint32_t drone_id = 1;
+
+  drone_protocol::VelocityChangeCommand last_command;
 };
 
 class Drone {

@@ -56,6 +56,10 @@ inline constexpr int kDroneCenterRadiusPx = 3;
 inline constexpr bool kShowPreview = true;
 inline constexpr int kPreviewWaitMs = 1;
 
+// Telemetry
+inline constexpr double kTelemetryRateHz = 10.0;
+inline constexpr uint8_t kTicksPerTelemetry =  kUpdateRateHz / kTelemetryRateHz;
+
 // Network
 inline constexpr size_t kMtuSize = 1500;
 inline constexpr size_t kMaxChunkPayload = 1400;

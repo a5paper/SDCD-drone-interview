@@ -12,14 +12,14 @@ struct CarPool {
   std::vector<float> along;
   std::vector<float> across;
   std::vector<float> velocity;
-  std::vector<uint8_t> color; 
+  std::vector<uint8_t> color;
 };
 
 struct WorldState {
   double drone_position_x = config::kWidth / 2;
   double drone_position_y = config::kHeight / 2;
   double elapsed_time = 0.0;
-  CarPool cars_along_x;  
+  CarPool cars_along_x;
   CarPool cars_along_y;
 };
 

@@ -40,6 +40,8 @@ void Drone::HandleCommand(
                       command.velocity_y() / length};
   state_.speed =
       std::min(length, config::kMaxCommandVelocity) * config::kMaxSpeed;
+
+  state_.last_command.CopyFrom(command);
 }
 
 void Drone::Update(double delta_time) {

@@ -1,6 +1,7 @@
 syntax = "proto3";
 
 package drone_protocol;
+import "commands.proto";
 
 message Telemetry {
   uint64 sequence = 1;
@@ -8,4 +9,5 @@ message Telemetry {
   uint64 frame_id = 3;
   double speed_mps = 4;
   double battery_percentage = 5;
+  VelocityChangeCommand last_command = 6;
 }
