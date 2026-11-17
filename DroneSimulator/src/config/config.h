@@ -51,8 +51,6 @@ inline constexpr uint8_t kTicksPerFrame = 2;
 inline constexpr double kVideoFps = kUpdateRateHz / kTicksPerFrame;
 inline constexpr int kJpegQuality = 70;
 // Video - Debug
-inline constexpr double kDroneSizeM = 2.0;
-inline constexpr int kDroneCenterRadiusPx = 3;
 inline constexpr int kPreviewWaitMs = 1;
 
 // Telemetry

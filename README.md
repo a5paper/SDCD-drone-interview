@@ -57,6 +57,7 @@ GCS/                       Ground Control Station (Python, tkinter + OpenCV)
   config.py, protocols.py  drone.ini loader; the generated protobuf imports
   constants/               protocol facts, keys, UI text, UI layout, INI names
   components/              video view, telemetry panel, command strip (one per file)
+  components/overlays/     drawn on top of the video (crosshair); chosen in drone.ini
   services/                UDP helpers, video and telemetry receivers, command sender
   requirements.txt         Python packages for GCS/.venv
 ```

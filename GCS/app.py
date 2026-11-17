@@ -4,14 +4,19 @@ import dataclasses
 import time
 import tkinter as tk
 
+import config
 import state
 from components.command_strip import CommandStrip
+from components.overlays.crosshair import Crosshair
 from components.telemetry_panel import TelemetryPanel
 from components.video_view import VideoView
 from constants import keys, text, ui
 from constants import settings as settings_names
 from constants.protocol import MS_PER_S
 from services.command_sender import next_interval
+
+# Overlay name in drone.ini to its component (see VideoView).
+OVERLAYS = {ui.OVERLAY_CROSSHAIR: Crosshair}
 
 
 class App:
@@ -43,7 +48,8 @@ class App:
         self.state = state.GcsState(speed_percent=start)
 
         root.title(text.WINDOW_TITLE)
-        self._video_view = VideoView(root)
+        overlays = [OVERLAYS[name] for name in config.overlays(settings)]
+        self._video_view = VideoView(root, overlays)
         self._video_view.grid(row=ui.VIDEO_CELL[0], column=ui.VIDEO_CELL[1])
         self._panel = TelemetryPanel(root)
         self._panel.grid(row=ui.PANEL_CELL[0], column=ui.PANEL_CELL[1],
@@ -72,6 +78,7 @@ class App:
         self.state = new
         self._panel.render(new)
         self._strip.render(new)
+        self._video_view.render_state(new)
         if recovered:
             self._send()
 

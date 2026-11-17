@@ -20,6 +20,18 @@ BADGE_COLORS = {
 }
 ON_COLOR = "gray60"  # A latched arrow; the others keep the default look.
 
+# Video overlays, by their name in drone.ini [gcs.ui] overlays.
+OVERLAY_CROSSHAIR = "crosshair"
+OVERLAY_NAMES = (OVERLAY_CROSSHAIR,)
+# Crosshair: four arms around the centre with an open gap, so a car under
+# the drone stays visible; white with a dark outline to show on any colour.
+CROSSHAIR_GAP_PX = 5
+CROSSHAIR_ARM_PX = 11
+CROSSHAIR_WIDTH_PX = 2
+CROSSHAIR_OUTLINE_PX = 4
+CROSSHAIR_COLOR = "white"
+CROSSHAIR_OUTLINE_COLOR = "black"
+
 # Window grid: (row, column) of each component; the strip spans both columns.
 VIDEO_CELL = (0, 0)
 PANEL_CELL = (0, 1)

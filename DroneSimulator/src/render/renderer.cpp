@@ -34,7 +34,8 @@ const cv::Mat& Renderer::Render(const world::WorldState& state) {
   DrawRoads();
   DrawCars(state.cars_along_x, /*along_x=*/true);
   DrawCars(state.cars_along_y, /*along_x=*/false);
-  DrawDrone(x, y);
+  // No drone marker: the camera is centred on the drone, and the GCS draws
+  // its crosshair on top, so the frame shows only the world.
   return frame_;
 }
 
@@ -113,18 +114,6 @@ void Renderer::DrawCars(const world::CarPool& pool, bool along_x) {
                   right - half_right, right + half_right,
                   colors[pool.color[i]]);
   }
-}
-
-void Renderer::DrawDrone(double drone_x, double drone_y) {
-  const cv::Scalar body_color(0, 200, 255);
-  const cv::Scalar center_color(0, 0, 0);
-  const double radius = config::kDroneSizeM / 2.0;
-
-  DrawWorldRect(drone_x - radius, drone_x + radius, drone_y - radius,
-                drone_y + radius, body_color);
-  const cv::Point2d center = WorldToScreen(drone_x, drone_y);
-  cv::circle(frame_, center, config::kDroneCenterRadiusPx, center_color,
-             cv::FILLED);
 }
 
 cv::Point2d Renderer::WorldToScreen(double world_x, double world_y) const {

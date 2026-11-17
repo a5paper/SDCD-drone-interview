@@ -10,6 +10,7 @@ import sys
 
 from constants import settings as names
 from constants.protocol import MAX_PERCENT
+from constants.ui import OVERLAY_NAMES
 
 DEFAULT_PATH = (pathlib.Path(__file__).resolve().parents[1] / "config" /
                 "drone.ini")
@@ -64,8 +65,23 @@ def load(path: str) -> configparser.ConfigParser:
                     allowed = f"{low}-{high}"
                 sys.exit(f"{path}: [{name}] {key} must be a whole number, "
                          f"{allowed}, got '{value}'")
+    if names.OVERLAYS not in parser[names.UI]:
+        sys.exit(f"{path}: [{names.UI}] missing {names.OVERLAYS} (may be "
+                 f"empty)")
+    unknown = [o for o in overlays(parser) if o not in OVERLAY_NAMES]
+    if unknown:
+        sys.exit(f"{path}: [{names.UI}] {names.OVERLAYS}: unknown "
+                 f"{', '.join(unknown)}; available: "
+                 f"{', '.join(OVERLAY_NAMES)}")
     link = parser[names.LINK]
     if link.getint(names.LIVE_MS) > link.getint(names.STALE_MS):
         sys.exit(f"{path}: [{names.LINK}] {names.LIVE_MS} must not exceed "
                  f"{names.STALE_MS}")
     return parser
+
+
+def overlays(parser: configparser.ConfigParser) -> list:
+    """Returns the overlay names in [gcs.ui] overlays, in order."""
+    text = parser[names.UI].get(names.OVERLAYS, "")
+    parts = (part.strip() for part in text.split(names.LIST_SEPARATOR))
+    return [part for part in parts if part]

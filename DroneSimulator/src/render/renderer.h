@@ -28,7 +28,6 @@ class Renderer {
   void DrawBlockBuildings(int block_forward, int block_right);
   void DrawRoads();
   void DrawCars(const world::CarPool& pool, bool along_x);
-  void DrawDrone(double drone_x, double drone_y);
 
   cv::Point2d WorldToScreen(double world_x, double world_y) const;
   // Fills a world-space rectangle. Skips it when it is outside the view.

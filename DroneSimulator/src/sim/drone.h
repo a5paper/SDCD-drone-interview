@@ -1,8 +1,6 @@
 #ifndef DRONE_SIMULATOR_SIM_DRONE_H_
 #define DRONE_SIMULATOR_SIM_DRONE_H_
 
-#include <cstdint>
-
 #include "config/config.h"
 #include "protocols/commands.pb.h"
 
@@ -17,7 +15,6 @@ struct DroneState {
   Vector2 direction;
   double speed_mps = 0.0;
   double battery_percentage = config::kInitialBatteryPercent;
-  uint32_t drone_id = 1;
 
   drone_protocol::VelocityChangeCommand last_command;
 };
