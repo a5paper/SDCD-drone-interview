@@ -15,6 +15,7 @@ import tkinter as tk
 
 import config
 from app import App
+from services.telemetry_receiver import TelemetryReceiver
 from services.video_receiver import VideoReceiver
 
 
@@ -27,18 +28,28 @@ def main() -> None:
     settings = config.load(args.config)
     link = settings["gcs.link"]
     bind_address = link["bind_address"]
-    video_port = settings["network"].getint("video_port")
+    network = settings["network"]
+    video_port = network.getint("video_port")
+    telemetry_port = network.getint("telemetry_port")
     restart_gap = link.getint("restart_gap_frames")
+    # A stream silent for longer than the link's LOST limit that comes back
+    # with a lower id is a restarted simulator.
+    silence_ms = link.getint("stale_ms")
     try:
         video = VideoReceiver(bind_address, video_port, not args.no_fec,
-                              restart_gap)
+                              restart_gap, silence_ms)
+        telemetry = TelemetryReceiver(bind_address, telemetry_port,
+                                      link.getint("telemetry_kept"),
+                                      restart_gap, silence_ms)
     except OSError as error:
-        sys.exit(f"Cannot listen on UDP {bind_address}:{video_port} "
-                 f"({error.strerror}). Is another receiver running?")
-    print(f"Listening for video on UDP {bind_address}:{video_port}")
+        sys.exit(f"Cannot listen on UDP {bind_address} ports {video_port} "
+                 f"and {telemetry_port} ({error.strerror}). Is another "
+                 f"receiver running?")
+    print(f"Listening on UDP {bind_address}: video {video_port}, telemetry "
+          f"{telemetry_port}")
 
     root = tk.Tk()
-    app = App(root, settings, video)
+    app = App(root, settings, video, telemetry)
     # Tk does not see SIGINT; the periodic poll lets Python run this handler.
     # It can run in the middle of a poll, so it only schedules the destroy for
     # after the current callback, never destroys widgets that are in use.
@@ -51,6 +62,9 @@ def main() -> None:
           f"{video.assembler.recovered} rebuilt with FEC, "
           f"{video.rejected} bad datagrams, "
           f"{video.assembler.restarts} simulator restarts")
+    tracker = telemetry.tracker
+    print(f"Telemetry: {tracker.lost} of {tracker.expected} packets lost, "
+          f"{telemetry.rejected} bad datagrams")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,7 @@
 """Receives the simulator's JPEG video: rebuilds frames from VideoChunks."""
 
 import collections
+import time
 
 import cv2
 import numpy as np
@@ -8,6 +9,8 @@ from google.protobuf import message
 
 from protocols import video_pb2
 from services import udp
+from units import MS_PER_S
+
 
 Frame = collections.namedtuple("Frame", ["frame_id", "timestamp_s", "image"])
 
@@ -54,10 +57,11 @@ class FrameAssembler:
     """Rebuilds frames from VideoChunk datagrams.
 
     A newer frame_id drops the frame in progress; chunks of older frames, and
-    of a frame already returned, are ignored. A frame_id more than
-    restart_gap_frames below the newest means the sender restarted (or the
-    newest was bogus), so the assembler resyncs to it. The decoder for each
-    frame comes from its chunks' fec_scheme; use_fec=False ignores parity.
+    of a frame already returned, are ignored. A lower frame_id after the
+    stream was silent, or one more than restart_gap_frames below the newest,
+    means the sender restarted (or the newest was bogus), so the assembler
+    resyncs to it. The decoder for each frame comes from its chunks'
+    fec_scheme; use_fec=False ignores parity.
     """
 
     def __init__(self, use_fec: bool, restart_gap_frames: int) -> None:
@@ -71,12 +75,17 @@ class FrameAssembler:
         self.rebuilt = False
         self.recovered = 0
 
-    def add(self, datagram: bytes):
-        """Returns a Frame when a frame completes, else None."""
+    def add(self, datagram: bytes, after_silence: bool = False):
+        """Returns a Frame when a frame completes, else None.
+
+        after_silence: no datagram arrived for a while before this one (a
+        late chunk does not arrive after that long, a restarted sender does).
+        """
         chunk = video_pb2.VideoChunk()
         chunk.ParseFromString(datagram)
         if chunk.frame_id < self.frame_id:
-            if self.frame_id - chunk.frame_id <= self.restart_gap_frames:
+            big_drop = self.frame_id - chunk.frame_id > self.restart_gap_frames
+            if not (after_silence or big_drop):
                 return None
             self.restarts += 1
         if chunk.frame_id != self.frame_id:
@@ -118,17 +127,27 @@ class VideoReceiver:
     """
 
     def __init__(self, address: str, port: int, use_fec: bool,
-                 restart_gap_frames: int) -> None:
+                 restart_gap_frames: int, silence_ms: int) -> None:
         self._sock = udp.open_receiver(address, port)
         self.assembler = FrameAssembler(use_fec, restart_gap_frames)
+        self._silence_s = silence_ms / MS_PER_S
+        self._last_arrival_s = None
         self.rejected = 0
 
     def poll(self) -> list:
         """Returns the frames completed since the last call, oldest first."""
         frames = []
-        for datagram in udp.drain(self._sock):
+        datagrams = udp.drain(self._sock)
+        if datagrams:
+            now_s = time.monotonic()
+            last_s = self._last_arrival_s
+            after_silence = (last_s is not None and
+                             now_s - last_s > self._silence_s)
+            self._last_arrival_s = now_s
+        for datagram in datagrams:
             try:
-                frame = self.assembler.add(datagram)
+                frame = self.assembler.add(datagram, after_silence)
+                after_silence = False  # Only the first datagram of the batch.
             except (message.DecodeError, cv2.error, ValueError):
                 self.rejected += 1
                 continue
