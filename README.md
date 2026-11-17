@@ -6,7 +6,7 @@
 3. `bash compile.sh [Debug|Release] [--clean]` (Debug by default; do not use sudo, or `build/` becomes root-owned)
 4. Run: `./build/DroneSimulator/DroneSimulator`
 
-Addresses and ports live in `config/network.ini`, read by the simulator. To run the nodes on two machines, copy it, set `simulator_address` and `gcs_address`, and pass `--config PATH` to the simulator.
+Addresses and ports live in `config/drone.ini`, read by the simulator and the GCS. To run the nodes on two machines, copy it, set `simulator_address` and `gcs_address`, and pass `--config PATH` to every program.
 
 ## Debugging with GDB
 - Debug builds (the default) use `-g3 -O0`.
@@ -21,7 +21,7 @@ C++ follows the [Google C++ Style Guide](https://google.github.io/styleguide/cpp
 
 ## Project layout
 ```
-config/network.ini         addresses and ports
+config/drone.ini         addresses and ports, shared by C++ and Python
 protocols/                 protobuf messages (drone_protocol library)
 DroneSimulator/src/
   main.cpp                 main loop: commands, update, video, telemetry, status

@@ -35,7 +35,7 @@ target_link_libraries(drone_network PUBLIC drone_core drone_protocol)
 
 add_executable(DroneSimulator src/main.cpp)
 target_compile_definitions(DroneSimulator PRIVATE
-    DRONE_SIMULATOR_DEFAULT_CONFIG="${PROJECT_SOURCE_DIR}/config/network.ini"
+    DRONE_SIMULATOR_DEFAULT_CONFIG="${PROJECT_SOURCE_DIR}/config/drone.ini"
 )
 target_link_libraries(DroneSimulator PRIVATE
     drone_sim

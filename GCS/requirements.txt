@@ -1,0 +1,6 @@
+# Python packages for the GCS, installed into GCS/.venv by install-deps.sh.
+# tkinter is not on PyPI: it comes from the python3-tk system package.
+numpy==2.2.6
+opencv-python-headless==4.10.0.84
+# Must match protoc 3.21.12 (libprotoc 21.12), which generates the *_pb2.py.
+protobuf==4.21.12

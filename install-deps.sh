@@ -18,10 +18,18 @@ ${SUDO} apt-get install -y \
   protobuf-compiler \
   libprotobuf-dev \
   libopencv-dev \
-  python3-opencv \
-  python3-protobuf
+  python3-venv \
+  python3-tk
+
+# The GCS's Python packages go into its own venv. tkinter is not on PyPI, so
+# the venv uses the system python3, which python3-tk provides it for.
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+VENV_DIR="${ROOT_DIR}/GCS/.venv"
+python3 -m venv "${VENV_DIR}"
+"${VENV_DIR}/bin/pip" install --quiet -r "${ROOT_DIR}/GCS/requirements.txt"
 
 echo "Dependencies installed."
+echo "  GCS venv: ${VENV_DIR} ($("${VENV_DIR}/bin/python" --version))"
 echo "  cmake:  $(cmake --version | head -n1)"
 echo "  protoc: $(protoc --version)"
 echo "  opencv: $(pkg-config --modversion opencv4)"
