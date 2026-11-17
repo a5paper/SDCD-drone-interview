@@ -28,7 +28,7 @@ inline constexpr float kCarMaxGapM = 25.0f;
 inline constexpr uint8_t kCarColorCount = 4;
 
 // Simulation loop
-inline constexpr double kUpdateRateHz = 50.0;
+inline constexpr double kUpdateRateHz = 60.0;
 inline constexpr double kTickPeriodS = 1.0 / kUpdateRateHz;
 inline constexpr double kStatusPrintIntervalS = 3.0;
 inline constexpr int kStatusPrintPrecision = 2;
