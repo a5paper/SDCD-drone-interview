@@ -1,12 +1,13 @@
 """The GCS state and the pure functions that change it. No tkinter here."""
 
 import dataclasses
+import math
 from typing import Optional
 
-LINK_NO_DATA = "NO DATA"
-LINK_LIVE = "LIVE"
-LINK_STALE = "STALE"
-LINK_LOST = "LOST"
+from constants.protocol import MAX_PERCENT, STOP_COMMAND
+from constants.text import LINK_LIVE, LINK_LOST, LINK_NO_DATA, LINK_STALE
+
+NO_DIRECTION = (0, 0)  # (forward, right) with no arrow latched.
 
 # A velocity command as plain values: (forward, right), each in [-1, 1].
 Command = tuple
@@ -50,8 +51,12 @@ class GcsState:
     telemetry_gap_ms: Optional[float] = None
     telemetry_lost: int = 0
     telemetry_expected: int = 0
-    # The last command the GCS sent (set by the command strip, C.3).
+    # The last command the GCS sent to the drone.
     sent_command: Optional[Command] = None
+    # Latched direction per axis, (forward, right), each -1, 0 or 1.
+    direction: tuple = NO_DIRECTION
+    # Intended speed, percent of the drone's maximum.
+    speed_percent: int = 0
 
     @property
     def sent(self) -> int:
@@ -101,3 +106,66 @@ def command_matches(state: GcsState) -> Optional[bool]:
     if state.telemetry is None or state.sent_command is None:
         return None
     return state.telemetry.last_command == state.sent_command
+
+
+# Arrow name: (axis index in direction, sign). Forward is up on screen.
+ARROWS = {
+    "forward": (0, 1),
+    "back": (0, -1),
+    "left": (1, -1),
+    "right": (1, 1),
+}
+
+
+def press_arrow(state: GcsState, arrow: str) -> GcsState:
+    """Returns state with the arrow's direction latched on its axis.
+
+    The opposite arrow reverses that axis; the other axis is kept, so
+    forward then right is a diagonal. Pressing an arrow that is already on
+    changes nothing, so a held key that auto-repeats cannot flicker the
+    direction. Only stop clears an axis.
+    """
+    axis, sign = ARROWS[arrow]
+    direction = list(state.direction)
+    direction[axis] = sign
+    return dataclasses.replace(state, direction=tuple(direction))
+
+
+def click_arrow(state: GcsState, arrow: str) -> GcsState:
+    """Returns state after a mouse click on an arrow button.
+
+    Clicking a latched (grayed) arrow clears its axis; any other click acts
+    like press_arrow. Only clicks toggle: a click cannot auto-repeat, a held
+    key can.
+    """
+    axis, sign = ARROWS[arrow]
+    if state.direction[axis] != sign:
+        return press_arrow(state, arrow)
+    direction = list(state.direction)
+    direction[axis] = 0
+    return dataclasses.replace(state, direction=tuple(direction))
+
+
+def stop(state: GcsState) -> GcsState:
+    """Returns state with no direction latched."""
+    return dataclasses.replace(state, direction=NO_DIRECTION)
+
+
+def set_speed(state: GcsState, percent: int) -> GcsState:
+    """Returns state with the intended speed clamped to 0-100 %."""
+    clamped = min(max(percent, 0), MAX_PERCENT)
+    return dataclasses.replace(state, speed_percent=clamped)
+
+
+def command(state: GcsState) -> Command:
+    """Returns the velocity to send: unit direction times intended speed.
+
+    A diagonal is normalized, so it is no faster than a straight line (the
+    simulator caps the command length at 1 the same way).
+    """
+    forward, right = state.direction
+    length = math.hypot(forward, right)
+    if length == 0:
+        return STOP_COMMAND
+    scale = state.speed_percent / MAX_PERCENT / length
+    return (forward * scale, right * scale)

@@ -16,6 +16,8 @@ struct NetworkConfig {
   uint16_t video_port = 0;
   FecScheme fec_scheme = FecScheme::kNone;
   uint32_t fec_group_size = 0;
+  // Local OpenCV window of the rendered frames ([simulator] preview).
+  bool preview = true;
 };
 
 std::optional<NetworkConfig> LoadNetworkConfig(const std::string& path);

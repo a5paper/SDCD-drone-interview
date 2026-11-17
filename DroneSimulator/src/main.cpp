@@ -71,8 +71,8 @@ void PrintStatus(const Simulator& simulator,
             << std::flush;
 }
 
-void ShowPreview(const std::vector<uint8_t>& jpeg) {
-  if (!config::kShowPreview || jpeg.empty()) {
+void ShowPreview(const std::vector<uint8_t>& jpeg, bool enabled) {
+  if (!enabled || jpeg.empty()) {
     return;
   }
 
@@ -133,7 +133,7 @@ int Run(const config::NetworkConfig& settings) {
       renderer.Render(world_state);
       const std::vector<uint8_t>& jpeg = renderer.GetJpeg();
       streamer.Send(jpeg, next_frame_id++, world_state.elapsed_time_s);
-      ShowPreview(jpeg);
+      ShowPreview(jpeg, settings.preview);
     }
 
     if (tick % config::kTicksPerTelemetry == 0) {

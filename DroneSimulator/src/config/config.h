@@ -53,7 +53,6 @@ inline constexpr int kJpegQuality = 70;
 // Video - Debug
 inline constexpr double kDroneSizeM = 2.0;
 inline constexpr int kDroneCenterRadiusPx = 3;
-inline constexpr bool kShowPreview = true;
 inline constexpr int kPreviewWaitMs = 1;
 
 // Telemetry

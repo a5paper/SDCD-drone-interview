@@ -8,27 +8,33 @@ import configparser
 import pathlib
 import sys
 
+from constants import settings as names
+from constants.protocol import MAX_PERCENT
+
 DEFAULT_PATH = (pathlib.Path(__file__).resolve().parents[1] / "config" /
                 "drone.ini")
 PORT = (1, 65535)  # Valid UDP ports.
 POSITIVE = (1, sys.maxsize)
-PERCENT = (0, 100)
-STEP_PERCENT = (1, 100)
+PERCENT = (0, MAX_PERCENT)
+STEP_PERCENT = (1, MAX_PERCENT)
 REQUIRED_TEXT = {
-    "network": ("simulator_address", "gcs_address"),
-    "gcs.link": ("bind_address",),
+    names.NETWORK: (names.SIMULATOR_ADDRESS, names.GCS_ADDRESS),
+    names.LINK: (names.BIND_ADDRESS,),
 }
 # Each key must be a whole number within its (low, high) range.
 REQUIRED_INTS = {
-    "network": {"command_port": PORT, "telemetry_port": PORT,
-                "video_port": PORT},
-    "gcs.link": {"poll_ms": POSITIVE, "restart_gap_frames": POSITIVE,
-                 "telemetry_kept": POSITIVE,
-                 "live_ms": POSITIVE, "stale_ms": POSITIVE},
-    "gcs.commands": {"resend_ms": POSITIVE, "backoff_max_ms": POSITIVE},
-    "gcs.ui": {"speed_start_percent": PERCENT,
-               "speed_drag_step_percent": STEP_PERCENT,
-               "speed_nudge_step_percent": STEP_PERCENT},
+    names.NETWORK: {names.COMMAND_PORT: PORT, names.TELEMETRY_PORT: PORT,
+                    names.VIDEO_PORT: PORT},
+    names.LINK: {names.POLL_MS: POSITIVE, names.RESTART_GAP_FRAMES: POSITIVE,
+                 names.RESTART_GAP_PACKETS: POSITIVE,
+                 names.TELEMETRY_KEPT: POSITIVE, names.LIVE_MS: POSITIVE,
+                 names.STALE_MS: POSITIVE},
+    names.COMMANDS: {names.RESEND_MS: POSITIVE,
+                     names.BACKOFF_MAX_MS: POSITIVE,
+                     names.EXIT_STOP_REPEATS: POSITIVE},
+    names.UI: {names.SPEED_START_PERCENT: PERCENT,
+               names.SPEED_DRAG_STEP_PERCENT: STEP_PERCENT,
+               names.SPEED_NUDGE_STEP_PERCENT: STEP_PERCENT},
 }
 
 
@@ -53,9 +59,13 @@ def load(path: str) -> configparser.ConfigParser:
             value = parser[name].get(key, "")
             if not (value.isascii() and value.isdigit()
                     and low <= int(value) <= high):
-                sys.exit(f"{path}: [{name}] {key} must be a whole number in "
-                         f"{low}-{high}, got '{value}'")
-    link = parser["gcs.link"]
-    if link.getint("live_ms") > link.getint("stale_ms"):
-        sys.exit(f"{path}: [gcs.link] live_ms must not exceed stale_ms")
+                allowed = f"at least {low}"
+                if high < sys.maxsize:
+                    allowed = f"{low}-{high}"
+                sys.exit(f"{path}: [{name}] {key} must be a whole number, "
+                         f"{allowed}, got '{value}'")
+    link = parser[names.LINK]
+    if link.getint(names.LIVE_MS) > link.getint(names.STALE_MS):
+        sys.exit(f"{path}: [{names.LINK}] {names.LIVE_MS} must not exceed "
+                 f"{names.STALE_MS}")
     return parser

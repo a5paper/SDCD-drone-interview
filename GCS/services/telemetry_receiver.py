@@ -7,7 +7,7 @@ from google.protobuf import message
 
 from protocols import telemetry_pb2
 from services import udp
-from units import MS_PER_S
+from constants.protocol import MS_PER_S
 
 
 class SequenceTracker:

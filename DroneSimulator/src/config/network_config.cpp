@@ -33,6 +33,15 @@ std::optional<uint16_t> ParsePort(const std::string& text) {
   return static_cast<uint16_t>(*port);
 }
 
+std::optional<bool> ParseBool(const std::string& text) {
+  const std::map<std::string, bool> values = {{"true", true}, {"false", false}};
+  const auto it = values.find(text);
+  if (it == values.end()) {
+    return std::nullopt;
+  }
+  return it->second;
+}
+
 std::optional<FecScheme> ParseFecScheme(const std::string& text) {
   const std::map<std::string, FecScheme> schemes = {{"none", FecScheme::kNone},
                                                     {"xor", FecScheme::kXor}};
@@ -79,11 +88,18 @@ std::optional<NetworkConfig> LoadNetworkConfig(const std::string& path) {
     return std::nullopt;
   }
 
+  const std::optional<bool> preview = ParseBool(values["preview"]);
+  if (!preview) {
+    std::cerr << path << ": needs preview = true or false" << std::endl;
+    return std::nullopt;
+  }
+
   config.command_port = *command_port;
   config.telemetry_port = *telemetry_port;
   config.video_port = *video_port;
   config.fec_scheme = *fec_scheme;
   config.fec_group_size = *fec_group_size;
+  config.preview = *preview;
   return config;
 }
 

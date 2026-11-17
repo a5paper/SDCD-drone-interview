@@ -2,7 +2,7 @@
 
 import socket
 
-MAX_DATAGRAM = 65535  # UDP maximum; nothing the simulator sends is larger.
+from constants.protocol import MAX_DATAGRAM
 
 
 def open_receiver(address: str, port: int) -> socket.socket:
