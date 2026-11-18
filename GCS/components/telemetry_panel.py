@@ -5,6 +5,7 @@ from tkinter import ttk
 
 import state as gcs_state
 from constants import protocol, text, ui
+from constants.protocol import GPS_FIX, GPS_NO_FIX
 from constants.text import NONE_TEXT
 
 
@@ -18,6 +19,16 @@ def percent_text(part: int, whole: int) -> str:
         return NONE_TEXT
     percent = protocol.MAX_PERCENT * part / whole
     return f"{percent:.1f} % of {whole}"
+
+
+def gps_text(telemetry: gcs_state.TelemetryView) -> str:
+    if telemetry.gps_state == GPS_FIX:
+        digits = ui.GPS_DECIMALS
+        latitude, longitude = telemetry.gps_fix
+        return f"{latitude:.{digits}f}, {longitude:.{digits}f}"
+    if telemetry.gps_state == GPS_NO_FIX:
+        return text.GPS_NO_FIX_TEXT
+    return text.NONE_TEXT
 
 
 class TelemetryPanel(tk.Frame):
@@ -51,6 +62,7 @@ class TelemetryPanel(tk.Frame):
             battery = telemetry.battery_percentage
             texts[text.ROW_SPEED] = f"{telemetry.speed_mps:.1f} m/s"
             texts[text.ROW_BATTERY] = f"{battery:.1f} %"
+            texts[text.ROW_GPS] = gps_text(telemetry)
             command = f"fwd {forward:+.2f} right {right:+.2f}"
             texts[text.ROW_LAST_COMMAND] = command
         if state.telemetry_gap_ms is not None:

@@ -11,6 +11,7 @@ add_library(drone_sim STATIC
     src/sim/drone.cpp
     src/sim/world.cpp
     src/sim/simulator.cpp
+    src/gps/simulated_gps_receiver.cpp
 )
 target_link_libraries(drone_sim PUBLIC drone_core drone_protocol)
 

@@ -21,6 +21,8 @@ bool IsCommandValid(const drone_protocol::VelocityChangeCommand& command) {
 
 }
 
+Drone::Drone(gps::GpsReceiver& gps_receiver) : gps_receiver_(gps_receiver) {}
+
 void Drone::HandleCommand(
     const drone_protocol::VelocityChangeCommand& command) {
   if (!IsCommandValid(command)) {
@@ -45,6 +47,7 @@ void Drone::HandleCommand(
 }
 
 void Drone::Update(double delta_time) {
+  UpdateGpsFix();
   if (!std::isfinite(delta_time) || delta_time <= 0.0) {
     return;
   }
@@ -56,6 +59,8 @@ void Drone::Update(double delta_time) {
     state_.speed_mps = 0.0;
   }
 }
+
+void Drone::UpdateGpsFix() { state_.gps_fix = gps_receiver_.ReadFix(); }
 
 const DroneState& Drone::GetState() const { return state_; }
 

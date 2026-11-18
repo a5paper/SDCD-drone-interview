@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package drone_protocol;
+
+message GpsFix {
+  double latitude_deg = 1;
+  double longitude_deg = 2;
+}
+
+message GpsNoFix {}
+
+message GpsStatus {
+  oneof state {
+    GpsFix fix = 1;
+    GpsNoFix no_fix = 2;
+  }
+}

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package drone_protocol;
 import "commands.proto";
+import "gps.proto";
 
 message Telemetry {
   uint64 sequence = 1;
@@ -10,4 +11,5 @@ message Telemetry {
   double speed_mps = 4;
   double battery_percentage = 5;
   VelocityChangeCommand last_command = 6;
+  GpsStatus gps_status = 7;
 }

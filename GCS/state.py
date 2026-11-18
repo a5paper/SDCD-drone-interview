@@ -4,7 +4,8 @@ import dataclasses
 import math
 from typing import Optional
 
-from constants.protocol import MAX_PERCENT, STOP_COMMAND
+from constants.protocol import (GPS_FIX, GPS_STATE_ONEOF, MAX_PERCENT,
+                                STOP_COMMAND)
 from constants.text import LINK_LIVE, LINK_LOST, LINK_NO_DATA, LINK_STALE
 
 NO_DIRECTION = (0, 0)  # (forward, right) with no arrow latched.
@@ -24,13 +25,19 @@ class TelemetryView:
     speed_mps: float
     battery_percentage: float
     last_command: Command
+    gps_state: Optional[str] = None
+    gps_fix: Optional[tuple] = None
 
 
 def view_of(telemetry) -> TelemetryView:
     """Copies the shown fields out of a Telemetry message."""
     command = telemetry.last_command
+    gps_state = telemetry.gps_status.WhichOneof(GPS_STATE_ONEOF)
+    fix = telemetry.gps_status.fix
+    gps_fix = (fix.latitude_deg, fix.longitude_deg)
     return TelemetryView(telemetry.speed_mps, telemetry.battery_percentage,
-                         (command.velocity_x, command.velocity_y))
+                         (command.velocity_x, command.velocity_y), gps_state,
+                         gps_fix if gps_state == GPS_FIX else None)
 
 
 @dataclasses.dataclass(frozen=True)

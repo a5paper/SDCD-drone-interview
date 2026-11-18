@@ -10,6 +10,9 @@ namespace drone_simulator::config {
 inline constexpr double kWorldWidthM = 1000.0;
 inline constexpr double kWorldHeightM = 1000.0;
 inline constexpr uint32_t kRandomSeed = 42;
+inline constexpr double kGpsOriginLatitudeDeg = 31.2518;
+inline constexpr double kGpsOriginLongitudeDeg = 34.7913;
+inline constexpr double kEarthRadiusM = 6371000.0;
 // World - Roads
 inline constexpr double kBlockSizeM = 50.0;
 inline constexpr double kRoadWidthM = 8.0;

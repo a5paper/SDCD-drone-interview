@@ -8,6 +8,7 @@ PAD_PX = 8
 VALUE_WIDTH_CHARS = 21
 BUTTON_WIDTH_CHARS = 3
 SCALE_LENGTH_PX = 240
+GPS_DECIMALS = 5
 FRAME_FORMAT = ".ppm"  # Tk reads PPM natively, so no Pillow is needed.
 
 VIDEO_BACKGROUND = "black"

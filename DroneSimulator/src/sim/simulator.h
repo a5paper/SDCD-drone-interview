@@ -1,6 +1,7 @@
 #ifndef DRONE_SIMULATOR_SIM_SIMULATOR_H_
 #define DRONE_SIMULATOR_SIM_SIMULATOR_H_
 
+#include "gps/simulated_gps_receiver.h"
 #include "protocols/commands.pb.h"
 #include "sim/drone.h"
 #include "sim/world.h"
@@ -16,8 +17,9 @@ class Simulator {
   const world::World& GetWorld() const;
 
  private:
-  drone::Drone drone_;
   world::World world_;
+  gps::SimulatedGpsReceiver gps_receiver_{world_};
+  drone::Drone drone_{gps_receiver_};
 };
 
 }

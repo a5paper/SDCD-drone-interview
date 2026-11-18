@@ -46,6 +46,7 @@ DroneSimulator/src/
   config/                  config.h (all constants), INI and network config loaders
   timing/                  LoopClock and IntervalTimer (with config/: drone_core library)
   sim/                     drone, world, road grid, simulator step (drone_sim library)
+  gps/                     GpsReceiver interface, SimulatedGpsReceiver (World to lat/lon)
   render/                  top-down renderer, JPEG encoding (drone_render library)
   network/                 UDP socket, command receiver, message sender, video streamer,
                            FEC strategies

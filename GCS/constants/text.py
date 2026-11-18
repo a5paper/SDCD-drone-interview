@@ -10,17 +10,19 @@ LINK_LOST = "LOST"
 
 NONE_TEXT = "-"  # A value that is not known yet.
 MATCH_TEXT = {None: NONE_TEXT, True: "yes", False: "no"}
+GPS_NO_FIX_TEXT = "no fix"
 
 # Telemetry panel rows, top to bottom.
 ROW_SPEED = "Speed"
 ROW_BATTERY = "Battery"
+ROW_GPS = "GPS"
 ROW_LAST_COMMAND = "Last command"
 ROW_MATCHES = "Matches sent"
 ROW_GAP = "Video/telemetry gap"
 ROW_FRAMES = "Frames shown"
 ROW_REBUILT = "Rebuilt by FEC"
 ROW_TELEMETRY_LOST = "Telemetry lost"
-ROWS = (ROW_SPEED, ROW_BATTERY, ROW_LAST_COMMAND, ROW_MATCHES, ROW_GAP,
+ROWS = (ROW_SPEED, ROW_BATTERY, ROW_GPS, ROW_LAST_COMMAND, ROW_MATCHES, ROW_GAP,
         ROW_FRAMES, ROW_REBUILT, ROW_TELEMETRY_LOST)
 
 # Command strip.

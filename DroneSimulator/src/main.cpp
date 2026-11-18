@@ -47,6 +47,15 @@ drone_protocol::Telemetry MakeTelemetry(const Simulator& simulator,
   telemetry.set_speed_mps(drone_state.speed_mps);
   telemetry.set_battery_percentage(drone_state.battery_percentage);
   *telemetry.mutable_last_command() = drone_state.last_command;
+  drone_protocol::GpsStatus& gps_status = *telemetry.mutable_gps_status();
+  if (drone_state.gps_fix) {
+    gps_status.mutable_fix()->set_latitude_deg(
+        drone_state.gps_fix->latitude_deg);
+    gps_status.mutable_fix()->set_longitude_deg(
+        drone_state.gps_fix->longitude_deg);
+  } else {
+    gps_status.mutable_no_fix();
+  }
   return telemetry;
 }
 
