@@ -12,6 +12,8 @@ namespace {
 
 constexpr uint32_t kMaxPort = 65535;
 constexpr uint32_t kMaxFecGroupSize = 1024;
+constexpr uint32_t kMaxCommandTimeoutMs = 60000;
+constexpr double kMsPerS = 1000.0;
 
 std::optional<uint32_t> ParseNumber(const std::string& text, uint32_t min,
                                     uint32_t max) {
@@ -92,6 +94,17 @@ std::optional<NetworkConfig> LoadNetworkConfig(const std::string& path) {
   if (!preview) {
     std::cerr << path << ": needs preview = true or false" << std::endl;
     return std::nullopt;
+  }
+
+  if (values.contains("command_timeout_ms")) {
+    const std::optional<uint32_t> command_timeout_ms =
+        ParseNumber(values["command_timeout_ms"], 1, kMaxCommandTimeoutMs);
+    if (!command_timeout_ms) {
+      std::cerr << path << ": command_timeout_ms must be in 1-"
+                << kMaxCommandTimeoutMs << std::endl;
+      return std::nullopt;
+    }
+    config.command_timeout_s = *command_timeout_ms / kMsPerS;
   }
 
   config.command_port = *command_port;

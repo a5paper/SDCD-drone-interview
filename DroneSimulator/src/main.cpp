@@ -17,6 +17,7 @@
 
 #include "config/config.h"
 #include "config/network_config.h"
+#include "gps/simulated_gps_receiver.h"
 #include "network/command_receiver.h"
 #include "network/message_sender.h"
 #include "network/video_streamer.h"
@@ -117,7 +118,13 @@ int Run(const config::NetworkConfig& settings) {
   std::cout << "Sending telemetry to " << settings.gcs_address << ":"
             << settings.telemetry_port << std::endl;
 
-  Simulator simulator;
+  world::World world;
+  gps::SimulatedGpsReceiver gps_receiver(world);
+  drone::Drone drone(gps_receiver);
+  if (settings.command_timeout_s) {
+    drone.SetCommandTimeout(*settings.command_timeout_s);
+  }
+  Simulator simulator(world, drone);
   render::JpegRenderer renderer;
   uint64_t next_frame_id = 0;
   uint64_t next_telemetry_sequence = 0;

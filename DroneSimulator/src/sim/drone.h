@@ -27,8 +27,10 @@ class Drone {
  public:
   explicit Drone(gps::GpsReceiver& gps_receiver);
 
-  void HandleCommand(const drone_protocol::VelocityChangeCommand& command);
-  void Update(double delta_time);
+  void HandleCommand(const drone_protocol::VelocityChangeCommand& command,
+                     double current_time_s);
+  void Update(double delta_time, double current_time_s);
+  void SetCommandTimeout(double command_timeout_s);
   const DroneState& GetState() const;
   Vector2 GetVelocity() const;
 
@@ -37,6 +39,8 @@ class Drone {
 
   gps::GpsReceiver& gps_receiver_;
   DroneState state_;
+  double command_timeout_s_ = config::kDefaultCommandTimeoutS;
+  double last_command_time_s_ = 0.0;
 };
 
 }

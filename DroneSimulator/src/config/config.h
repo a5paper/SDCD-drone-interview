@@ -44,6 +44,7 @@ inline constexpr double kMaxBatteryPercent = 100.0;
 inline constexpr double kInitialBatteryPercent = 68.7;
 inline constexpr double kBatteryLifeS = 1200.0;
 inline constexpr double kBatteryDrainPerS = kMaxBatteryPercent / kBatteryLifeS;
+inline constexpr double kDefaultCommandTimeoutS = 1.5;
 
 // Video
 inline constexpr int kFrameWidthPx = 640;

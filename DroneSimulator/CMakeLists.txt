@@ -53,5 +53,8 @@ add_executable(drone_network_tests
 target_link_libraries(drone_network_tests
     PRIVATE drone_network GTest::gtest_main
 )
+add_executable(drone_sim_tests tests/drone_test.cpp)
+target_link_libraries(drone_sim_tests PRIVATE drone_sim GTest::gtest_main)
 include(GoogleTest)
 gtest_discover_tests(drone_network_tests)
+gtest_discover_tests(drone_sim_tests)

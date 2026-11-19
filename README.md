@@ -12,7 +12,7 @@ GCS controls:
 - Intended speed: drag the slider (10 % steps), or - / + buttons and the `-` / `=` keys (1 %); `_` / `+` (Shift) move 10 %.
 - q, closing the window or Ctrl+C quits; the GCS then sends a final stop and prints video, telemetry and command statistics.
 
-Settings live in `config/drone.ini`, read by both nodes. The simulator's own preview window is switched by `preview = true|false` in `[simulator]`; set it to `false` to run the simulator without a display. To run the nodes on two machines, copy it, set `simulator_address` and `gcs_address`, and pass `--config PATH` to both programs. To run the nodes on two machines, copy it, set `simulator_address` and `gcs_address`, and pass `--config PATH` to every program.
+Settings live in `config/drone.ini`, read by both nodes. The simulator's own preview window is switched by `preview = true|false` in `[simulator]`; set it to `false` to run the simulator without a display. If no valid command arrives for `command_timeout_ms` (optional, `[simulator]`, default 1500 ms), the drone stops; keep it above `backoff_max_ms`. To run the nodes on two machines, copy it, set `simulator_address` and `gcs_address`, and pass `--config PATH` to both programs. To run the nodes on two machines, copy it, set `simulator_address` and `gcs_address`, and pass `--config PATH` to every program.
 
 ## Debugging with GDB
 - Debug builds (the default) use `-g3 -O0`.

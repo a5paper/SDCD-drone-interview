@@ -1,8 +1,9 @@
 """Sends velocity commands to the simulator, with resend and backoff timing."""
 
 import socket
+import time
 
-from constants.protocol import BACKOFF_FACTOR
+from constants.protocol import BACKOFF_FACTOR, NS_PER_MS
 from protocols import commands_pb2
 
 
@@ -49,8 +50,9 @@ class CommandSender:
     def send(self, command: tuple) -> None:
         """Sends (forward, right) as one datagram."""
         forward, right = command
-        message = commands_pb2.VelocityChangeCommand(velocity_x=forward,
-                                                     velocity_y=right)
+        timestamp_ms = time.time_ns() // NS_PER_MS
+        message = commands_pb2.VelocityChangeCommand(
+            velocity_x=forward, velocity_y=right, timestamp_ms=timestamp_ms)
         try:
             self._sock.send(message.SerializeToString())
             self.sent += 1

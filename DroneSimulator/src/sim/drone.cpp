@@ -23,12 +23,16 @@ bool IsCommandValid(const drone_protocol::VelocityChangeCommand& command) {
 
 Drone::Drone(gps::GpsReceiver& gps_receiver) : gps_receiver_(gps_receiver) {}
 
-void Drone::HandleCommand(
-    const drone_protocol::VelocityChangeCommand& command) {
+void Drone::HandleCommand(const drone_protocol::VelocityChangeCommand& command,
+                          double current_time_s) {
   if (!IsCommandValid(command)) {
     return;
   }
+  if (command.timestamp_ms() < state_.last_command.timestamp_ms()) {
+    return;
+  }
   state_.last_command = command;
+  last_command_time_s_ = current_time_s;
 
   // The command's length is the fraction of max speed, capped at 1 so
   // diagonals are not faster than straight lines.
@@ -46,7 +50,7 @@ void Drone::HandleCommand(
       std::min(length, config::kMaxCommandVelocity) * config::kMaxSpeedMps;
 }
 
-void Drone::Update(double delta_time) {
+void Drone::Update(double delta_time, double current_time_s) {
   UpdateGpsFix();
   if (!std::isfinite(delta_time) || delta_time <= 0.0) {
     return;
@@ -54,10 +58,19 @@ void Drone::Update(double delta_time) {
 
   state_.battery_percentage -= delta_time * config::kBatteryDrainPerS;
 
+  if (current_time_s - last_command_time_s_ > command_timeout_s_) {
+    state_.direction = {};
+    state_.speed_mps = 0.0;
+  }
+
   if (state_.battery_percentage <= 0.0) {
     state_.battery_percentage = 0.0;
     state_.speed_mps = 0.0;
   }
+}
+
+void Drone::SetCommandTimeout(double command_timeout_s) {
+  command_timeout_s_ = command_timeout_s;
 }
 
 void Drone::UpdateGpsFix() { state_.gps_fix = gps_receiver_.ReadFix(); }
