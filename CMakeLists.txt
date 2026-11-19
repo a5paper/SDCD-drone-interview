@@ -7,6 +7,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Protobuf REQUIRED)
 find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs highgui)
+find_package(GTest REQUIRED)
+
+enable_testing()
 
 add_subdirectory(protocols)
 add_subdirectory(DroneSimulator)

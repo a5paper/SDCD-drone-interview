@@ -45,3 +45,13 @@ target_link_libraries(DroneSimulator PRIVATE
     opencv_highgui
     opencv_imgcodecs
 )
+
+add_executable(drone_network_tests
+    tests/fec_test.cpp
+    tests/video_streamer_test.cpp
+)
+target_link_libraries(drone_network_tests
+    PRIVATE drone_network GTest::gtest_main
+)
+include(GoogleTest)
+gtest_discover_tests(drone_network_tests)

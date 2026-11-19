@@ -2,7 +2,7 @@
 
 ## How to compile
 1. Use a Ubuntu 24 LTS or a windows computer the same OS on WSL.
-2. `bash install-deps.sh` (asks for sudo itself; also creates the GCS's Python venv in `GCS/.venv` from `GCS/requirements.txt`)
+2. `bash install-deps.sh` (asks for sudo itself; also creates the GCS's Python venv in `GCS/.venv` from `GCS/requirements-dev.txt`, which adds pytest to `GCS/requirements.txt`)
 3. `bash compile.sh [Debug|Release] [--clean]` (Debug by default; do not use sudo, or `build/` becomes root-owned)
 4. Run the simulator: `./build/DroneSimulator/DroneSimulator`
 5. Run the Ground Control Station: `GCS/.venv/bin/python GCS/main.py [--no-fec]`
@@ -31,6 +31,11 @@ Settings live in `config/drone.ini`, read by both nodes. The simulator's own pre
 
 Measured at 5 % loss, 40 s per run: 53.1 % of frames shown without FEC, 83.6 % with one XOR parity chunk per frame, 93.7 % with `fec_group_size = 5` in `config/drone.ini`. The loss rate changes with `sudo tc qdisc change dev lo root netem loss 10%`.
 
+## Unit tests
+`bash test.sh` (after `compile.sh`) runs both suites. They cover the video path: FEC parity and frame reassembly.
+- C++ (GoogleTest, `ctest`): `XorFec`/`NoFec` parity, including a short last chunk and rebuilding any one lost chunk; `VideoStreamer` chunk indices, sizes and parity order, read back from a loopback socket on UDP 5699.
+- GCS (pytest): `FrameAssembler` and the FEC decoders rebuilding one lost chunk per group, dropping a frame with two losses in a group, ignoring parity with `--no-fec`, superseding an incomplete frame, and resyncing after a restart.
+
 ## Code style
 C++ follows the [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html).
 - Format: `clang-format -i $(find DroneSimulator/src -name '*.h' -o -name '*.cpp')` (config in `.clang-format`).
@@ -51,6 +56,7 @@ DroneSimulator/src/
   network/                 UDP socket, command receiver, message sender, video streamer,
                            FEC strategies
                            (drone_network library)
+DroneSimulator/tests/      GoogleTest: FEC parity, video chunking
 GCS/                       Ground Control Station (Python, tkinter + OpenCV)
   main.py                  startup, exit summary
   app.py                   owns the state, polls the streams, sends commands
@@ -60,7 +66,10 @@ GCS/                       Ground Control Station (Python, tkinter + OpenCV)
   components/              video view, telemetry panel, command strip (one per file)
   components/overlays/     drawn on top of the video (crosshair); chosen in drone.ini
   services/                UDP helpers, video and telemetry receivers, command sender
+  tests/                   pytest: frame reassembly and FEC recovery
   requirements.txt         Python packages for GCS/.venv
+  requirements-dev.txt     requirements.txt plus pytest
+test.sh                    runs the C++ and GCS unit tests
 ```
 
 ## Assumptions

@@ -12,6 +12,7 @@ fi
 ${SUDO} apt-get update
 ${SUDO} apt-get install -y \
   build-essential \
+  libgtest-dev \
   gdb \
   valgrind \
   cmake \
@@ -26,7 +27,7 @@ ${SUDO} apt-get install -y \
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 VENV_DIR="${ROOT_DIR}/GCS/.venv"
 python3 -m venv "${VENV_DIR}"
-"${VENV_DIR}/bin/pip" install --quiet -r "${ROOT_DIR}/GCS/requirements.txt"
+"${VENV_DIR}/bin/pip" install --quiet -r "${ROOT_DIR}/GCS/requirements-dev.txt"
 
 echo "Dependencies installed."
 echo "  GCS venv: ${VENV_DIR} ($("${VENV_DIR}/bin/python" --version))"

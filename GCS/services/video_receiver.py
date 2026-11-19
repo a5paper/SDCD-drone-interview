@@ -60,8 +60,10 @@ class FrameAssembler:
     of a frame already returned, are ignored. A lower frame_id after the
     stream was silent, or one more than restart_gap_frames below the newest,
     means the sender restarted (or the newest was bogus), so the assembler
-    resyncs to it. The decoder for each frame comes from its chunks'
-    fec_scheme; use_fec=False ignores parity.
+    resyncs to it. A chunk_count that differs from the frame in progress
+    starts that frame again, so mixed counts never index a missing chunk.
+    The decoder for each frame comes from its chunks' fec_scheme;
+    use_fec=False ignores parity.
     """
 
     def __init__(self, use_fec: bool, restart_gap_frames: int) -> None:
@@ -69,6 +71,7 @@ class FrameAssembler:
         self.restart_gap_frames = restart_gap_frames
         self.restarts = 0
         self.frame_id = -1
+        self.chunk_count = -1
         self.data = {}
         self.parity = {}
         self.done = False
@@ -88,14 +91,14 @@ class FrameAssembler:
             if not (after_silence or big_drop):
                 return None
             self.restarts += 1
-        if chunk.frame_id != self.frame_id:
-            self.frame_id = chunk.frame_id
+        count = chunk.chunk_count
+        if chunk.frame_id != self.frame_id or count != self.chunk_count:
+            self.frame_id, self.chunk_count = chunk.frame_id, count
             self.data, self.parity = {}, {}
             self.done = self.rebuilt = False
         if self.done:
             return None
 
-        count = chunk.chunk_count
         if chunk.chunk_index < count:
             self.data[chunk.chunk_index] = chunk.payload
         else:
