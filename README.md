@@ -1,5 +1,7 @@
 # SDCD-for-interview
 
+A drone simulator (C++) and a Ground Control Station (Python) that talk over UDP: live video with forward error correction, telemetry and velocity commands.
+
 ## How to compile
 Ubuntu 24.04 LTS (also on WSL) and Windows 10/11 (native, no WSL) are supported.
 
