@@ -1,6 +1,5 @@
 #include "network/command_receiver.h"
 
-#include <cstring>
 #include <iostream>
 
 namespace drone_simulator::network {
@@ -16,7 +15,7 @@ std::optional<drone_protocol::VelocityChangeCommand> CommandReceiver::Poll() {
   while ((result = socket_.Receive(buffer_)).status !=
          ReceiveStatus::kWouldBlock) {
     if (result.status == ReceiveStatus::kError) {
-      std::cerr << "Receive failed: " << std::strerror(result.error_code)
+      std::cerr << "Receive failed: " << ErrorText(result.error_code)
                 << std::endl;
       break;
     }

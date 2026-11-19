@@ -42,3 +42,8 @@ env/
 
 # outputs
 out/
+
+# Windows build
+build-windows/
+vcpkg_installed/
+.venv-windows/

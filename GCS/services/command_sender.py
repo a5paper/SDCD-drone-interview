@@ -37,7 +37,8 @@ class CommandSender:
 
     Send errors are counted, not raised: on a connected socket a send to a
     port nobody listens on fails with ECONNREFUSED (from the ICMP reply), which
-    is normal while the simulator is not running.
+    is normal while the simulator is not running. On Windows such a send
+    never fails, so "0 failed" is normal there.
     """
 
     def __init__(self, address: str, port: int) -> None:

@@ -4,14 +4,22 @@
 #include <cstddef>
 #include <cstdint>
 #include <span>
+#include <string>
 #include <string_view>
 
 namespace drone_simulator::network {
 
+// errno on POSIX, WSAGetLastError() on Windows. Read it right after a failed
+// socket call.
+int LastSocketError();
+
+// Human-readable text for a LastSocketError() value.
+std::string ErrorText(int error_code);
+
 enum class ReceiveStatus {
   kData,
   kWouldBlock,
-  kError,  // error_code holds errno
+  kError,  // error_code holds a LastSocketError() value
 };
 
 struct ReceiveResult {
@@ -23,7 +31,7 @@ struct ReceiveResult {
 enum class SendStatus {
   kSent,
   kWouldBlock,
-  kError,  // error_code holds errno
+  kError,  // error_code holds a LastSocketError() value
 };
 
 struct SendResult {
@@ -53,11 +61,17 @@ class UdpSocket {
   [[nodiscard]] SendResult Send(std::span<const uint8_t> data);
 
  private:
-  static constexpr int kInvalidFd = -1;
+#ifdef _WIN32
+  using NativeHandle = std::uintptr_t;
+  static constexpr NativeHandle kInvalidHandle = ~NativeHandle{0};
+#else
+  using NativeHandle = int;
+  static constexpr NativeHandle kInvalidHandle = -1;
+#endif
 
   void Close();
 
-  int fd_ = kInvalidFd;
+  NativeHandle handle_ = kInvalidHandle;
 };
 
 }

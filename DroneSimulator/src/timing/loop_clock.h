@@ -10,15 +10,19 @@ class LoopClock {
   using Clock = std::chrono::steady_clock;
 
   explicit LoopClock(double period_s);
+  ~LoopClock();
+  LoopClock(const LoopClock&) = delete;
+  LoopClock& operator=(const LoopClock&) = delete;
 
   double Tick();
-  void SleepUntilNextTick() const;
+  void SleepUntilNextTick();
   Clock::duration GetUptime() const;
 
  private:
   Clock::duration period_;
   Clock::time_point start_ = Clock::now();
   Clock::time_point tick_start_ = start_;
+  Clock::time_point next_deadline_;
 };
 
 class IntervalTimer {

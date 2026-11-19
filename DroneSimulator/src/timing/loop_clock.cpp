@@ -2,6 +2,15 @@
 
 #include <thread>
 
+#include "config/config.h"
+#ifdef _WIN32
+// clang-format off
+// timeapi.h needs windows.h first.
+#include <windows.h>
+#include <timeapi.h>
+// clang-format on
+#endif
+
 namespace drone_simulator::timing {
 namespace {
 
@@ -14,7 +23,18 @@ LoopClock::Clock::duration ToDuration(double seconds) {
 
 }
 
-LoopClock::LoopClock(double period_s) : period_(ToDuration(period_s)) {}
+LoopClock::LoopClock(double period_s)
+    : period_(ToDuration(period_s)), next_deadline_(start_ + period_) {
+#ifdef _WIN32
+  timeBeginPeriod(config::kWindowsTimerResolutionMs);
+#endif
+}
+
+LoopClock::~LoopClock() {
+#ifdef _WIN32
+  timeEndPeriod(config::kWindowsTimerResolutionMs);
+#endif
+}
 
 double LoopClock::Tick() {
   const Clock::time_point now = Clock::now();
@@ -23,8 +43,13 @@ double LoopClock::Tick() {
   return delta_time_s;
 }
 
-void LoopClock::SleepUntilNextTick() const {
-  std::this_thread::sleep_until(tick_start_ + period_);
+void LoopClock::SleepUntilNextTick() {
+  const Clock::time_point now = Clock::now();
+  if (now > next_deadline_ + period_) {
+    next_deadline_ = now + period_;
+  }
+  std::this_thread::sleep_until(next_deadline_);
+  next_deadline_ += period_;
 }
 
 LoopClock::Clock::duration LoopClock::GetUptime() const {

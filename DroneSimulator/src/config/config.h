@@ -34,6 +34,8 @@ inline constexpr uint8_t kCarColorCount = 4;
 inline constexpr double kUpdateRateHz = 60.0;
 inline constexpr double kTickPeriodS = 1.0 / kUpdateRateHz;
 inline constexpr double kStatusPrintIntervalS = 3.0;
+// Windows sleeps in 15.6 ms steps unless the timer resolution is raised.
+inline constexpr unsigned kWindowsTimerResolutionMs = 1;
 inline constexpr int kStatusPrintPrecision = 2;
 inline constexpr double kBytesPerKiB = 1024.0;
 
@@ -59,7 +61,8 @@ inline constexpr int kPreviewWaitMs = 1;
 
 // Telemetry
 inline constexpr double kTelemetryRateHz = 10.0;
-inline constexpr uint8_t kTicksPerTelemetry = kUpdateRateHz / kTelemetryRateHz;
+inline constexpr uint8_t kTicksPerTelemetry =
+    static_cast<uint8_t>(kUpdateRateHz / kTelemetryRateHz);
 static_assert(kTicksPerTelemetry * kTelemetryRateHz == kUpdateRateHz);
 
 // Network

@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Ground Control Station: live video, telemetry and keyboard/mouse control.
+r"""Ground Control Station: live video, telemetry and keyboard/mouse control.
 
 Usage:
     GCS/.venv/bin/python GCS/main.py [--config FILE] [--no-fec]
+    GCS\.venv-windows\Scripts\python.exe GCS\main.py [--config FILE] [--no-fec]
 
 Close the window, press q, or press Ctrl+C in the terminal to stop. On exit it
 prints how many frames were shown of those sent, for the packet-loss test.

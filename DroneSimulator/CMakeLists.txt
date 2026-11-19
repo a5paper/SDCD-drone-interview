@@ -1,4 +1,8 @@
-add_compile_options(-Wall -Wextra -Wpedantic $<$<CONFIG:Debug>:-g3>)
+if(MSVC)
+  add_compile_options(/W4 /utf-8)
+else()
+  add_compile_options(-Wall -Wextra -Wpedantic $<$<CONFIG:Debug>:-g3>)
+endif()
 
 add_library(drone_core STATIC
     src/config/ini_file.cpp
@@ -6,6 +10,10 @@ add_library(drone_core STATIC
     src/timing/loop_clock.cpp
 )
 target_include_directories(drone_core PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/src)
+if(WIN32)
+  target_link_libraries(drone_core PUBLIC winmm)
+  target_compile_definitions(drone_core PUBLIC WIN32_LEAN_AND_MEAN NOMINMAX)
+endif()
 
 add_library(drone_sim STATIC
     src/sim/drone.cpp
@@ -33,6 +41,9 @@ add_library(drone_network STATIC
 )
 
 target_link_libraries(drone_network PUBLIC drone_core drone_protocol)
+if(WIN32)
+  target_link_libraries(drone_network PUBLIC ws2_32)
+endif()
 
 add_executable(DroneSimulator src/main.cpp)
 target_compile_definitions(DroneSimulator PRIVATE
@@ -48,13 +59,14 @@ target_link_libraries(DroneSimulator PRIVATE
 
 add_executable(drone_network_tests
     tests/fec_test.cpp
+    tests/udp_socket_test.cpp
     tests/video_streamer_test.cpp
 )
 target_link_libraries(drone_network_tests
     PRIVATE drone_network GTest::gtest_main
 )
-add_executable(drone_sim_tests tests/drone_test.cpp)
+add_executable(drone_sim_tests tests/drone_test.cpp tests/loop_clock_test.cpp)
 target_link_libraries(drone_sim_tests PRIVATE drone_sim GTest::gtest_main)
 include(GoogleTest)
-gtest_discover_tests(drone_network_tests)
-gtest_discover_tests(drone_sim_tests)
+gtest_discover_tests(drone_network_tests DISCOVERY_MODE PRE_TEST)
+gtest_discover_tests(drone_sim_tests DISCOVERY_MODE PRE_TEST)

@@ -1,7 +1,5 @@
-#include <cerrno>
 #include <cstdint>
 #include <cstdlib>
-#include <cstring>
 #include <format>
 #include <iomanip>
 #include <iostream>
@@ -31,8 +29,10 @@ namespace {
 
 bool ReportOpen(bool opened, std::string_view socket_name) {
   if (!opened) {
+    // Read the error before any output: console writes can reset it.
+    const int error = network::LastSocketError();
     std::cerr << "Failed to open " << socket_name
-              << " socket: " << std::strerror(errno) << std::endl;
+              << " socket: " << network::ErrorText(error) << std::endl;
   }
   return opened;
 }

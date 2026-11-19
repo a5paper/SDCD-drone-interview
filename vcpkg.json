@@ -1,0 +1,26 @@
+{
+  "name": "sdcd",
+  "version-string": "0.1.0",
+  "dependencies": [
+    "protobuf",
+    "gtest",
+    {
+      "name": "opencv4",
+      "default-features": false,
+      "features": [
+        "jpeg",
+        "highgui",
+        "win32ui",
+        "intrinsics",
+        "thread"
+      ]
+    }
+  ],
+  "overrides": [
+    {
+      "name": "protobuf",
+      "version": "3.21.12"
+    }
+  ],
+  "builtin-baseline": "e1ff419d28c7f0a94abaf0a848fe0aeeb69b2de3"
+}
