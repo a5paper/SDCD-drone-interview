@@ -20,7 +20,11 @@ ${SUDO} apt-get install -y \
   libprotobuf-dev \
   libopencv-dev \
   python3-venv \
-  python3-tk
+  python3-tk \
+  latexmk \
+  texlive-latex-recommended \
+  texlive-pictures \
+  texlive-science
 
 # The GCS's Python packages go into its own venv. tkinter is not on PyPI, so
 # the venv uses the system python3, which python3-tk provides it for.
@@ -36,4 +40,5 @@ echo "  protoc: $(protoc --version)"
 echo "  opencv: $(pkg-config --modversion opencv4)"
 echo "  gdb:    $(gdb --version | head -n1)"
 echo "  valgrind: $(valgrind --version)"
+echo "  latexmk: $(latexmk --version | grep -m1 Latexmk)"
 

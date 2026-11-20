@@ -47,3 +47,6 @@ out/
 build-windows/
 vcpkg_installed/
 .venv-windows/
+
+# Built docs (compile.sh)
+Docs/**/*.pdf

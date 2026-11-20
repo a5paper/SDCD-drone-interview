@@ -21,7 +21,7 @@ for arg in "$@"; do
   esac
 done
 
-for tool in cmake protoc; do
+for tool in cmake protoc latexmk; do
   if ! command -v "${tool}" >/dev/null 2>&1; then
     echo "Error: '${tool}' not found. Run ./install-deps.sh first." >&2
     exit 1
@@ -42,3 +42,13 @@ echo "Building..."
 cmake --build "${BUILD_DIR}" --parallel "$(nproc)"
 
 echo "Build complete: ${BUILD_DIR}/DroneSimulator/DroneSimulator"
+
+# Design proposals: LaTeX scratch files stay in build/, the PDFs go next to the
+# sources in Docs/proposals/.
+echo "Building design proposals..."
+DOCS_DIR="${ROOT_DIR}/Docs/proposals"
+DOCS_BUILD_DIR="${BUILD_DIR}/docs"
+latexmk -pdf -interaction=nonstopmode -halt-on-error -quiet \
+  -outdir="${DOCS_BUILD_DIR}" "${DOCS_DIR}"/*.tex
+cp "${DOCS_BUILD_DIR}"/*.pdf "${DOCS_DIR}/"
+echo "Docs complete: ${DOCS_DIR}"
