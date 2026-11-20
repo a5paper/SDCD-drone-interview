@@ -3,6 +3,7 @@
 A drone simulator (C++) and a Ground Control Station (Python) that talk over UDP: live video with forward error correction, telemetry and velocity commands.
 
 - [Docs/proposals/car-tracking-design.tex](Docs/proposals/car-tracking-design.tex): the car detection and tracking design proposal (`compile.sh` builds the PDF).
+- AI-assisted: `.claude/` holds the AI agent's project context (code map, decision log and a feature-planning skill).
 
 ## How to compile
 Ubuntu 24.04 LTS (also on WSL) and Windows 10/11 (native, no WSL) are supported.
