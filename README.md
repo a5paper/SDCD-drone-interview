@@ -21,7 +21,7 @@ Ubuntu 24.04 LTS (also on WSL) and Windows 10/11 (native, no WSL) are supported.
    - Only VS 2026 is tested on the development machine; VS 2022 is accepted but untested.
    - The install path itself (winget and the Visual Studio Installer) is untested; only the checks and `-WhatIf` were run.
 2. Setup, build and test, in PowerShell from the repo root:
-   - `powershell -ExecutionPolicy Bypass -File .\install-deps.ps1` (the first run builds the C++ libraries: about 7 minutes with a cold cache on the development machine (slower machines take longer), 52 s with vcpkg's binary cache warm; it also creates `GCS\.venv-windows`)
+   - `powershell -ExecutionPolicy Bypass -File .\install-deps.ps1` (the first run builds the C++ libraries: about 7 minutes with a cold cache on the development machine, longer on slower ones, and 52 s with vcpkg's binary cache warm; it also creates `GCS\.venv-windows`)
    - `powershell -ExecutionPolicy Bypass -File .\compile.ps1 [Debug|Release] [-Clean]` (Debug by default; a full Debug build took 26 s with the libraries cached)
    - `powershell -ExecutionPolicy Bypass -File .\test.ps1` (both test suites)
    - `-ExecutionPolicy Bypass` is needed because the default Windows policy blocks `.\x.ps1`.
@@ -35,7 +35,7 @@ GCS controls:
 - Intended speed: drag the slider (10 % steps), or - / + buttons and the `-` / `=` keys (1 %); `_` / `+` (Shift) move 10 %.
 - q, closing the window or Ctrl+C quits; the GCS then sends a final stop and prints video, telemetry and command statistics.
 
-Settings live in `config/drone.ini`, read by both nodes. The simulator's own preview window is switched by `preview = true|false` in `[simulator]`; set it to `false` to run the simulator without a display. If no valid command arrives for `command_timeout_ms` (optional, `[simulator]`, default 1500 ms), the drone stops; keep it above `backoff_max_ms`. To run the nodes on two machines, copy it, set `simulator_address` and `gcs_address`, and pass `--config PATH` to both programs. To run the nodes on two machines, copy it, set `simulator_address` and `gcs_address`, and pass `--config PATH` to every program.
+Settings live in `config/drone.ini`, read by both nodes. The simulator's own preview window is switched by `preview = true|false` in `[simulator]`; set it to `false` to run the simulator without a display. If no valid command arrives for `command_timeout_ms` (optional, `[simulator]`, default 1500 ms), the drone stops; keep it above `backoff_max_ms`. To run the nodes on two machines, copy it, set `simulator_address` and `gcs_address`, and pass `--config PATH` to both programs.
 
 ## Debugging with GDB
 - Debug builds (the default) use `-g3 -O0`.
@@ -56,7 +56,7 @@ Measured at 5 % loss, 40 s per run: 53.1 % of frames shown without FEC, 83.6 % w
 
 ## Unit tests
 `bash test.sh` (Windows: `test.ps1`, after the compile step) runs both suites. 23 GoogleTest and 12 pytest tests. They cover the video path (FEC parity and frame reassembly), command ordering, the UDP socket and the loop clock.
-- C++ (GoogleTest, `ctest`): `XorFec`/`NoFec` parity, including a short last chunk and rebuilding any one lost chunk; `VideoStreamer` chunk indices, sizes and parity order, read back from a loopback socket on UDP 5699; `Drone` command ordering (a newer or equal timestamp applies, an older one is ignored and does not refresh the command timeout); `UdpSocket` (4 tests on UDP 5698: an empty receive would block, binding a port twice fails with error text, a bad address is rejected, a loopback round trip); `LoopClock` (2 tests: holds 30 Hz over many ticks, no burst of ticks after an overrun).
+- C++ (GoogleTest, `ctest`): `XorFec`/`NoFec` parity, including a short last chunk and rebuilding any one lost chunk; `VideoStreamer` chunk indices, sizes and parity order, read back from a loopback socket on UDP 5699; `Drone` command ordering (a newer or equal timestamp applies, an older one is ignored and does not refresh the command timeout); `UdpSocket` (4 tests on UDP 5698: an empty receive would block, binding a port twice fails with error text, a bad address is rejected, a loopback round trip); `LoopClock` (2 tests: holds 50 Hz over many ticks, no burst of ticks after an overrun).
 - GCS (pytest): `FrameAssembler` and the FEC decoders rebuilding one lost chunk per group, dropping a frame with two losses in a group, ignoring parity with `--no-fec`, superseding an incomplete frame, and resyncing after a restart.
 
 ## Code style
