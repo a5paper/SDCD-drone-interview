@@ -8,7 +8,14 @@ A drone simulator (C++) and a Ground Control Station (Python) that talk over UDP
 ## How to compile
 Ubuntu 24.04 LTS (also on WSL) and Windows 10/11 (native, no WSL) are supported.
 
-### Ubuntu 24.04
+### Ubuntu 24.04 (Ideal)
+Quick start, from the repo root:
+```bash
+bash install-deps.sh
+bash compile.sh Release
+bash run.sh
+```
+
 1. Use Ubuntu 24 LTS, or Windows with WSL running it.
 2. `bash install-deps.sh` (asks for sudo itself; also creates the GCS's Python venv in `GCS/.venv` from `GCS/requirements-dev.txt`, which adds pytest to `GCS/requirements.txt`)
 3. `bash compile.sh [Debug|Release] [--clean]` (Debug by default; do not use sudo, or `build/` becomes root-owned)
@@ -17,12 +24,21 @@ Ubuntu 24.04 LTS (also on WSL) and Windows 10/11 (native, no WSL) are supported.
 6. Or run the whole system with one command: `bash run.sh [Debug|Release] [--config PATH]` (Release by default; builds first if needed; the simulator runs in the background with its output in `build/simulator.log`, and closing the GCS stops it)
 
 ### Windows 10/11
+Quick start, in PowerShell from the repo root:
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install-deps.ps1
+powershell -ExecutionPolicy Bypass -File .\compile.ps1 Release
+powershell -ExecutionPolicy Bypass -File .\run.ps1
+```
+
 1. Prerequisites: Visual Studio 2022 or 2026, Build Tools or the IDE, with the C++ workload ("Desktop development with C++"), and Python 3.12 (found with `py -3.12`). `install-deps.ps1` checks both and offers to install what is missing with winget or the VS Installer; it never installs without a `y`.
+   - winget is required: without it, `install-deps.ps1` prints the install commands and stops. winget comes with the App Installer package (preinstalled on Windows 10 1809+ and Windows 11). If `winget` is not recognized, register it with `Add-AppxPackage -RegisterByFamilyName -MainPackage Microsoft.DesktopAppInstaller_8wekyb3d8bbwe`, or install App Installer from the Microsoft Store.
    - Clone to a short path such as `C:\src\SDCD`. A long path breaks the C++ library build (Windows 260-character limit).
    - Only VS 2026 is tested on the development machine; VS 2022 is accepted but untested.
    - The install path itself (winget and the Visual Studio Installer) is untested; only the checks and `-WhatIf` were run.
 2. Setup, build and test, in PowerShell from the repo root:
    - `powershell -ExecutionPolicy Bypass -File .\install-deps.ps1` (the first run builds the C++ libraries: about 7 minutes with a cold cache on the development machine, longer on slower ones, and 52 s with vcpkg's binary cache warm; it also creates `GCS\.venv-windows`)
+     - This step can take a long time. vcpkg prints nothing while a library compiles, so a line such as `Building x64-windows-static-md-dbg` can stay on screen for many minutes; it has not hung. To watch progress, in another terminal: `Get-Content vcpkg_installed\vcpkg\blds\<library>\install-x64-windows-static-md-dbg-out.log -Wait -Tail 5`
    - `powershell -ExecutionPolicy Bypass -File .\compile.ps1 [Debug|Release] [-Clean]` (Debug by default; a full Debug build took 26 s with the libraries cached)
    - `powershell -ExecutionPolicy Bypass -File .\test.ps1` (both test suites)
    - `-ExecutionPolicy Bypass` is needed because the default Windows policy blocks `.\x.ps1`.

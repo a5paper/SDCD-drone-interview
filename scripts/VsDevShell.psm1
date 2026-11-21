@@ -34,7 +34,11 @@ function Get-VsInstances {
     if ($LASTEXITCODE -ne 0) { throw "vswhere failed with exit code $LASTEXITCODE." }
     $text = ($json -join "`n").Trim()
     if (-not $text) { return @() }
-    return @($text | ConvertFrom-Json | Sort-Object { [version]$_.installationVersion } -Descending)
+    # Windows PowerShell 5.1's ConvertFrom-Json emits a JSON array as one
+    # object, so "[]" would become one empty instance. Piping the variable
+    # enumerates it: "[]" gives no instances.
+    $parsed = $text | ConvertFrom-Json
+    return @($parsed | Sort-Object { [version]$_.installationVersion } -Descending)
 }
 
 # The IDs to pass to the VS Installer's "modify --add" for this instance;

@@ -22,7 +22,9 @@ Import-Module (Join-Path $RootDir 'scripts\VsDevShell.psm1') -Force
 
 function Get-VsInstallArguments($installPath, $components) {
     $adds = ($components | ForEach-Object { "--add $_" }) -join ' '
-    return "modify --installPath `"$installPath`" $adds --includeRecommended --quiet --wait"
+    # No --wait: setup.exe modify rejects it (exit code 87); only the vs_*.exe
+    # bootstrappers accept it. Start-Process -Wait does the waiting.
+    return "modify --installPath `"$installPath`" $adds --includeRecommended --quiet"
 }
 
 # setup.exe needs admin rights and is a GUI program, so it is started elevated
@@ -155,6 +157,9 @@ if ($steps.Count -gt 0) {
 
 Write-Host ''
 Write-Host 'Building C++ libraries with vcpkg (about 7 minutes the first time on the development machine, slower machines take longer; seconds when cached)...'
+Write-Host 'NOTICE: this step can take a long time. vcpkg prints nothing while a library compiles, so a line such as'
+Write-Host '        "Building x64-windows-static-md-dbg" can stay on screen for many minutes. It has not hung; leave it running.'
+Write-Host "        To watch progress, in another terminal: Get-Content $VcpkgInstallRoot\vcpkg\blds\<library>\install-$Triplet-dbg-out.log -Wait -Tail 5"
 Enter-SdcdVsDevShell | Out-Null
 Set-Location $RootDir
 if (-not $env:VCPKG_ROOT) {
