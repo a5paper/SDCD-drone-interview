@@ -9,12 +9,10 @@
 
 \usepackage[colorlinks, linkcolor=accent, urlcolor=accent]{hyperref}
 
-% Colours: one accent for headings, links and figures; table shades from it.
 \definecolor{accent}{HTML}{1F5FA8}
 \colorlet{headcolor}{accent!25}
 \colorlet{rowshade}{accent!6}
 
-% Coloured section headings (the article class definitions plus a colour).
 \makeatletter
 \renewcommand\section{\@startsection{section}{1}{\z@}%
   {-3.5ex \@plus -1ex \@minus -.2ex}{2.3ex \@plus .2ex}%
@@ -24,42 +22,29 @@
   {\normalfont\large\bfseries\color{accent}}}
 \makeatother
 
-% Car colours used in the figures. A and B are the two example cars.
 \colorlet{carA}{red!55}
 \colorlet{carB}{accent!50}
 \colorlet{lookalike}{gray!60}
 
-% Shared figure styles. Change a look here and every figure follows.
 \tikzset{
-  % Bigger arrowheads than the default.
   >=stealth,
-  % Flow-chart box. Takes a colour, the accent by default: box=green.
   box/.style={draw=#1!70!black, fill=#1!12, rounded corners=2pt,
               inner sep=4pt},
   box/.default=accent,
-  % A road seen from above: a wide light-grey band.
   road/.style={gray!30, line width=8mm},
-  % Where the Kalman filter expects a car (dashed), and the circle it
-  % searches around that place.
   guess/.style={dashed, accent, thick},
   search/.style={accent, thick},
-  % What the detector reports: a match (green) or a rejected box (red).
   detection/.style={green!50!black},
   rejected/.style={red},
-  % Thin line from a label to the thing it names.
   leader/.style={gray!70!black},
-  % A car seen from above, 0.5 x 0.2, pointing along x. Takes a fill
-  % colour. Usage: \pic[rotate=90] at (x, y) {car=carA};
   pics/car/.style={code={
     \filldraw[fill=#1] (-0.25, -0.1) rectangle (0.25, 0.1);
   }},
-  % The dashed outline of a car where the filter expects it.
   pics/car guess/.style={code={
     \draw[guess] (-0.25, -0.1) rectangle (0.25, 0.1);
   }},
 }
 
-% Let figures share pages with text instead of getting pages of their own.
 \renewcommand{\topfraction}{0.9}
 \renewcommand{\bottomfraction}{0.8}
 \renewcommand{\textfraction}{0.07}
@@ -67,12 +52,10 @@
 \setcounter{totalnumber}{4}
 
 \title{\color{accent}\textbf{Car Detection and Tracking}\\Design Proposal}
-\author{SDCD-for-interview}
 \date{}
 
 \begin{document}
 
-% Every table: shaded header, then alternating row shades.
 \rowcolors{2}{rowshade}{white}
 
 \maketitle
@@ -123,7 +106,6 @@ late and sometimes not at all, so the tracker must handle that
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
-  % Row 1: image side. Row 2: tracking and display.
   \node[box] (source) at (0, 0) {Frame source};
   \node[box] (detect) at (3.9, 0) {Model};
   \node[box] (project) at (8, 0) {Pixels to metres};
@@ -131,7 +113,6 @@ late and sometimes not at all, so the tracker must handle that
   \node[box] (track) at (8, -2.4) {Tracker (EKF + matching)};
   \node[box] (ui) at (12.8, -2.4) {\texttt{tracks} overlay};
 
-  % Arrows: data flow.
   \draw[->] (source) -- node[above] {image} (detect);
   \draw[->] (detect) -- node[above] {boxes} (project);
   \draw[->] (pose) -- (project);
@@ -182,9 +163,8 @@ per metre).
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
-  % The camera frame, 640 x 640 px, drawn 6 x 6 cm. Not to scale inside.
-  \coordinate (drone) at (3, 3);  % always the image centre
-  \coordinate (car) at (5.3, 4.8);    % 12 m right of and 9 m ahead of the drone
+  \coordinate (drone) at (3, 3);
+  \coordinate (car) at (5.3, 4.8);
   \coordinate (corner) at (car |- drone);
 
   \draw[accent, fill=green!6] (0, 0) rectangle (6, 6);
@@ -195,7 +175,6 @@ per metre).
   \pic[rotate=90] at (car) {car=carA};
   \node[right=2mm] at (car) {car};
 
-  % The offset: first to the right, then ahead.
   \draw[->] ([xshift=1.5mm]drone) -- node[below, pos=0.55] {120 px = 12 m}
     (corner);
   \draw[->] (corner) -- node[left] {90 px = 9 m} ([yshift=-3mm]car);
@@ -231,13 +210,10 @@ landing where the filter expects it.
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
-  % The loop runs top to bottom, then back up on the left. The model feeds
-  % the matching step from the right.
   \node[box=violet] (predict) at (0, 0) {EKF: predict};
   \node[box=green] (match) at (0, -2.3) {Match (Hungarian)};
   \node[box=violet] (correct) at (0, -4.6) {EKF: correct};
   \node[box=orange] (model) at (6.5, -2.3) {Detection model (whole frame)};
-  % The return path runs well left of the widest box.
   \coordinate (back) at ([xshift=-1.2cm]match.west);
 
   \draw[->] (predict) -- node[right] {predicted positions} (match);
@@ -381,7 +357,6 @@ gap in frame numbers, predicts over the real time, and changes no state.
 \begin{figure}[htbp]
 \centering
 \begin{tikzpicture}
-  % Three live states in a row, Deleted below.
   \node[box=orange] (new) at (0, 0) {New};
   \node[box=green] (trk) at (4.5, 0) {Tracked};
   \node[box=yellow] (lost) at (9, 0) {Lost};
@@ -390,13 +365,11 @@ gap in frame numbers, predicts over the real time, and changes no state.
   \draw[->] (new) -- node[above, align=center] {matched 3\\frames in a row}
     (trk);
 
-  % Two-way pair: straight, side by side.
   \draw[->] ([yshift=1.5mm]trk.east) -- node[above] {not matched}
     ([yshift=1.5mm]lost.west);
   \draw[->] ([yshift=-1.5mm]lost.west) -- node[below] {matched again}
     ([yshift=-1.5mm]trk.east);
 
-  % Into Deleted.
   \draw[->] (new) |- node[pos=0.25, left] {missed once} (del);
   \draw[->] (lost) |- node[pos=0.25, right] {gate reaches the cap} (del);
 \end{tikzpicture}
@@ -419,7 +392,6 @@ uses recorded flights labelled by hand.
 
 \section{Tradeoffs}
 
-% Pinned under its heading and never split; small type keeps it short.
 \begin{table}[H]
 \centering
 \small
